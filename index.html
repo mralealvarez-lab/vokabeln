@@ -121,6 +121,9 @@
     color: rgba(27,33,64,0.75); margin-top: 4px;
   }
   .plural-line .lbl{ font-weight:400; opacity:0.7; margin-right:3px; }
+  .gender-info{ margin-top:14px; padding-top:10px; border-top: 1px solid rgba(27,33,64,0.12); }
+  .gender-info .plural-line{ font-size:14px; line-height:1.4; margin-bottom:8px; }
+  .gender-info .example{ font-size:12px; line-height:1.4; margin-top:4px; }
   .compound-wrap{
     display:flex; align-items:center; justify-content:center; gap:4px; flex-wrap:wrap;
     margin-top: 5px; padding: 0 4px;
@@ -158,13 +161,81 @@
   .conj-form{ color:#1B2140; font-weight:700; text-align:right; }
   .verb-tag{ font-size:9px; text-transform:uppercase; letter-spacing:0.08em; opacity:0.45; margin-top:6px; }
 
-  .mode-tabs{ display:flex; gap:8px; margin: 4px 0 16px; }
+  .mode-tabs{ display:flex; gap:6px; margin: 4px 0 16px; flex-wrap:wrap; }
   .mode-tab{
-    flex:1; padding: 11px 8px; border-radius: 10px; border: 1px solid rgba(243,233,210,0.25);
-    background: transparent; color: rgba(243,233,210,0.7); font-family: var(--body); font-size: 14px;
+    flex:1; min-width: 76px; padding: 10px 4px; border-radius: 10px; border: 1px solid rgba(243,233,210,0.25);
+    background: transparent; color: rgba(243,233,210,0.7); font-family: var(--body); font-size: 12.5px;
     font-weight:600; cursor:pointer;
   }
   .mode-tab.active{ background: var(--amber); border-color: var(--amber); color: var(--ink); }
+
+  .sub-tabs{ display:flex; gap:6px; margin: 0 0 16px; }
+  .sub-tab{
+    flex:1; padding: 9px 4px; border-radius: 9px; border: 1px solid rgba(243,233,210,0.16);
+    background: rgba(243,233,210,0.04); color: rgba(243,233,210,0.55); font-family: var(--body);
+    font-size: 12px; font-weight:600; cursor:pointer;
+  }
+  .sub-tab.active{ background: rgba(232,163,61,0.16); border-color: var(--amber); color: var(--amber); }
+
+  .tense-question{ margin: 8px 0 4px; font-family: var(--body); font-size:15px; color: var(--ink); }
+  .tq-tense{ font-weight:700; text-transform:uppercase; letter-spacing:0.05em; font-size:11px; color: #C98327; }
+
+  .btn-review{ background: rgba(78,159,99,0.18); color: #A9E0B6; border:1px solid rgba(78,159,99,0.45); }
+  .btn-review.active{ background: var(--green); color:#F3F9F1; }
+
+  .game-score{
+    display:flex; justify-content:center; gap:18px; margin-bottom:14px;
+    font-family: var(--body); font-size:13px; color: rgba(243,233,210,0.8);
+  }
+  .game-score b{ color: var(--paper); font-size:16px; }
+  .game-restart-row{ text-align:center; margin-top:16px; }
+
+  .game-card{
+    background: var(--paper); border-radius: 16px; padding: 28px 20px 24px;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.25); text-align:center;
+  }
+  .game-card .icon-wrap{ width:72px; height:72px; margin: 0 auto 10px; }
+  .game-card .gc-es{ font-family: var(--display); font-size:20px; font-weight:700; color: var(--ink); }
+  .game-card .gc-noun{ font-family: var(--display); font-size:26px; font-weight:700; font-style:italic; color: var(--ink); margin-top:4px; }
+
+  .article-row{ display:flex; gap:10px; margin-top:20px; }
+  .article-btn{
+    flex:1; padding: 14px 6px; border-radius: 12px; border: 2px solid rgba(27,33,64,0.15);
+    background: rgba(27,33,64,0.04); color: var(--ink); font-family: var(--display); font-size:18px;
+    font-weight:700; font-style:italic; cursor:pointer;
+  }
+  .article-btn.correct{ background: var(--green); border-color: var(--green); color:#F3F9F1; }
+  .article-btn.wrong{ background: #E85D4E; border-color:#E85D4E; color:#FFF; }
+  .article-btn[disabled]{ opacity:0.6; }
+
+  .exam-options{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px; }
+  .exam-option{
+    padding: 13px 8px; border-radius: 10px; border: 2px solid rgba(27,33,64,0.15);
+    background: rgba(27,33,64,0.04); color: var(--ink); font-family: var(--body); font-size:13px;
+    font-weight:600; font-style:italic; cursor:pointer;
+  }
+  .exam-option.correct{ background: var(--green); border-color: var(--green); color:#F3F9F1; }
+  .exam-option.wrong{ background: #E85D4E; border-color:#E85D4E; color:#FFF; }
+  .exam-option[disabled]{ opacity:0.6; }
+
+  .game-next{
+    margin-top:18px; width:100%; padding:13px; border-radius:10px; border:none;
+    background: var(--ink); color: var(--paper); font-family: var(--body); font-weight:700; font-size:14px; cursor:pointer;
+  }
+  .game-summary{ text-align:center; padding: 20px 10px; }
+  .game-summary .gs-big{ font-family: var(--display); font-size:40px; font-weight:700; color: var(--ink); }
+
+  .exam-review{ margin-top:20px; text-align:left; }
+  .exam-review-item{
+    background: rgba(27,33,64,0.05); border-radius:10px; padding:10px 12px; margin-bottom:8px;
+  }
+  .exam-review-item.wrong{ border-left: 3px solid #E85D4E; }
+  .exam-review-item.correct{ border-left: 3px solid #4E9F63; }
+  .eri-head{ display:flex; justify-content:space-between; align-items:center; font-weight:700; color: var(--ink); font-size:13px; }
+  .eri-mark{ font-size:14px; }
+  .eri-chosen{ font-size:11px; color: rgba(27,33,64,0.5); text-decoration: line-through; margin-top:3px; }
+  .eri-correct-answer{ font-style:italic; color: #1B2140; margin-top:2px; font-size:13px; }
+  .eri-example{ font-size:11.5px; color: rgba(27,33,64,0.65); margin-top:4px; font-style:italic; }
 
   .verb-list{
     display:grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px;
@@ -225,37 +296,87 @@
     <button class="mode-tab" id="tabVerbs" data-mode="verbs">🗣️ Verbos</button>
   </div>
 
-  <div id="vocabSection">
-    <div class="search-wrap">
-      <input class="search-input" id="searchInput" type="text" placeholder="Buscar palabra en español o alemán…" autocomplete="off">
-      <button class="search-clear" id="searchClear">✕</button>
+  <div id="vocabWrap">
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="cards">🗃️ Tarjetas</button>
+      <button class="sub-tab" data-sub="gender">🔤 Género</button>
+      <button class="sub-tab" data-sub="exam">✅ Examen</button>
     </div>
 
-    <div class="cats" id="cats"></div>
-
-    <div class="progress-wrap">
-      <div class="progress-meta">
-        <span id="progressText">0 / 0 en esta categoría</span>
-        <span id="progressPct">0%</span>
+    <div id="vocabSection">
+      <div class="search-wrap">
+        <input class="search-input" id="searchInput" type="text" placeholder="Buscar palabra en español o alemán…" autocomplete="off">
+        <button class="search-clear" id="searchClear">✕</button>
       </div>
-      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+      <div class="cats" id="cats"></div>
+
+      <div class="progress-wrap">
+        <div class="progress-meta">
+          <span id="progressText">0 / 0 en esta categoría</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="board" id="board"></div>
+
+      <div class="toolbar">
+        <button class="btn btn-review" id="btnReview">🔁 Repasar pendientes</button>
+        <button class="btn btn-shuffle" id="btnFlipAll">⤨ Voltear todas</button>
+        <button class="btn btn-reset" id="resetBtn">Reiniciar progreso</button>
+      </div>
     </div>
 
-    <div class="board" id="board"></div>
+    <div id="genderSection" style="display:none;">
+      <div class="game-score" id="genderScore"></div>
+      <div id="genderCard"></div>
+      <div class="game-restart-row">
+        <button class="btn btn-reset" id="genderRestart">🔁 Reiniciar ronda</button>
+      </div>
+    </div>
 
-    <div class="toolbar">
-      <button class="btn btn-shuffle" id="btnFlipAll">⤨ Voltear todas</button>
-      <button class="btn btn-reset" id="resetBtn">Reiniciar progreso</button>
+    <div id="examSection" style="display:none;">
+      <div class="cats" id="examCats"></div>
+      <div class="game-score" id="examScore"></div>
+      <div id="examCard"></div>
+      <div class="game-restart-row">
+        <button class="btn btn-reset" id="examRestart">🔁 Nueva ronda</button>
+      </div>
     </div>
   </div>
 
-  <div id="verbsSection" style="display:none;">
-    <div class="search-wrap">
-      <input class="search-input" id="verbSearchInput" type="text" placeholder="Buscar verbo…" autocomplete="off">
-      <button class="search-clear" id="verbSearchClear">✕</button>
+  <div id="verbsWrap" style="display:none;">
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="conj">📖 Conjugación</button>
+      <button class="sub-tab" data-sub="tenses">⏱️ Tiempos</button>
+      <button class="sub-tab" data-sub="examv">✅ Examen</button>
     </div>
-    <div class="verb-list" id="verbList"></div>
-    <div id="verbDetail"></div>
+
+    <div id="verbsSection">
+      <div class="search-wrap">
+        <input class="search-input" id="verbSearchInput" type="text" placeholder="Buscar verbo…" autocomplete="off">
+        <button class="search-clear" id="verbSearchClear">✕</button>
+      </div>
+      <div class="verb-list" id="verbList"></div>
+      <div id="verbDetail"></div>
+    </div>
+
+    <div id="tensesSection" style="display:none;">
+      <div class="game-score" id="tensesScore"></div>
+      <div id="tensesCard"></div>
+      <div class="game-restart-row">
+        <button class="btn btn-reset" id="tensesRestart">🔁 Reiniciar ronda</button>
+      </div>
+    </div>
+
+    <div id="examVSection" style="display:none;">
+      <div class="game-score" id="examVScore"></div>
+      <div id="examVCard"></div>
+      <div class="game-restart-row">
+        <button class="btn btn-reset" id="examVRestart">🔁 Nueva ronda</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3583,10 +3704,19 @@ const CAT_LABELS = {
   social: "Vida social",
 };
 
-let state = { category: "instrumentos", known: {}, flipped: {}, query: "" };
+let state = { category: "instrumentos", known: {}, flipped: {}, query: "", mode: "vocab", vocabSub: "cards", verbSub: "conj", reviewMode: false, reviewQueue: [] };
 
 function normalize(str){
   return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 /* ---- Frases de ejemplo (generadas por plantilla, no guardadas por palabra) ---- */
@@ -5576,37 +5706,74 @@ const STORAGE_KEY = "vokabeln-known";
 function wordKey(w){ return w.cat + "::" + w.es; }
 
 /* Capa de almacenamiento: usa window.storage dentro de Claude, y localStorage
-   cuando el archivo se abre suelto en cualquier navegador (compartido, instalado, etc). */
+   cuando el archivo se abre suelto en cualquier navegador (compartido, instalado, etc).
+   Si window.storage existe pero falla (p. ej. en la vista previa de archivos), cae a
+   localStorage automáticamente en vez de mostrar un error. */
 const hasClaudeStorage = (typeof window !== "undefined") && !!window.storage;
 
+function safeLocalGet(key){
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+function safeLocalSet(key, value){
+  try{ localStorage.setItem(key, value); }catch(e){}
+}
+
 async function loadProgress(){
-  try{
-    if(hasClaudeStorage){
+  if(hasClaudeStorage){
+    try{
       const res = await window.storage.get(STORAGE_KEY);
-      if(res && res.value){ state.known = JSON.parse(res.value); }
-    }else{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){ state.known = JSON.parse(raw); }
-    }
+      if(res && res.value){ state.known = JSON.parse(res.value); return; }
+    }catch(e){ /* seguir con localStorage como respaldo */ }
+  }
+  try{
+    const raw = safeLocalGet(STORAGE_KEY);
+    if(raw){ state.known = JSON.parse(raw); }
   }catch(e){ state.known = {}; }
 }
 async function saveProgress(){
-  try{
-    if(hasClaudeStorage){
+  if(hasClaudeStorage){
+    try{
       await window.storage.set(STORAGE_KEY, JSON.stringify(state.known));
-    }else{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.known));
-    }
-  }catch(e){ console.error("No se pudo guardar el progreso", e); }
+      return;
+    }catch(e){ /* seguir con localStorage como respaldo */ }
+  }
+  safeLocalSet(STORAGE_KEY, JSON.stringify(state.known));
+}
+
+const VOCAB_BY_KEY = {};
+VOCAB.forEach(w => { VOCAB_BY_KEY[wordKey(w)] = w; });
+
+const REVIEW_BATCH = 24;
+
+function reviewPending(){
+  return state.reviewQueue.map(k => VOCAB_BY_KEY[k]).filter(w => w && !state.known[wordKey(w)]);
 }
 
 function currentList(){
+  if(state.reviewMode){
+    return reviewPending().slice(0, REVIEW_BATCH);
+  }
   if(state.query.trim() !== ""){
     const q = normalize(state.query.trim());
     return VOCAB.filter(w => normalize(w.es).includes(q) || normalize(w.de).includes(q));
   }
   if(state.category === "todos") return VOCAB;
   return VOCAB.filter(w => w.cat === state.category);
+}
+
+function toggleReview(){
+  state.reviewMode = !state.reviewMode;
+  if(state.reviewMode){
+    const pending = VOCAB.filter(w => !state.known[wordKey(w)]);
+    state.reviewQueue = shuffleArr(pending.map(w => wordKey(w)));
+  }
+  state.flipped = {};
+  document.getElementById("btnReview").classList.toggle("active", state.reviewMode);
+  document.getElementById("btnReview").textContent = state.reviewMode ? "✕ Salir del repaso" : "🔁 Repasar pendientes";
+  document.getElementById("cats").classList.toggle("disabled", state.reviewMode);
+  document.getElementById("searchInput").disabled = state.reviewMode;
+  renderCats();
+  renderBoard();
 }
 
 function renderCats(){
@@ -5624,7 +5791,7 @@ function renderCats(){
     btn.onclick = () => { state.category = c; state.flipped = {}; renderCats(); renderBoard(); };
     el.appendChild(btn);
   });
-  el.classList.toggle("disabled", state.query.trim() !== "");
+  el.classList.toggle("disabled", state.query.trim() !== "" || state.reviewMode);
 }
 
 function renderBoard(){
@@ -5634,10 +5801,10 @@ function renderBoard(){
   const searching = state.query.trim() !== "";
 
   if(list.length === 0){
-    board.innerHTML = `<div class="empty" style="grid-column: 1 / -1;">
-      <div class="word">Sin resultados</div>
-      <div>Prueba con otra palabra en español o alemán.</div>
-    </div>`;
+    const emptyMsg = state.reviewMode
+      ? `<div class="word">¡Repaso completo! 🎉</div><div>Ya marcaste como sabidas todas las palabras pendientes.</div>`
+      : `<div class="word">Sin resultados</div><div>Prueba con otra palabra en español o alemán.</div>`;
+    board.innerHTML = `<div class="empty" style="grid-column: 1 / -1;">${emptyMsg}</div>`;
     renderProgress();
     return;
   }
@@ -5742,6 +5909,16 @@ function renderBoard(){
 
 function renderProgress(){
   const list = currentList();
+  if(state.reviewMode){
+    const total = state.reviewQueue.length;
+    const remaining = reviewPending().length;
+    const done = total - remaining;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    document.getElementById("progressText").textContent = `${remaining} pendientes por repasar`;
+    document.getElementById("progressPct").textContent = pct + "%";
+    document.getElementById("progressFill").style.width = pct + "%";
+    return;
+  }
   const total = list.length;
   const knownCount = list.filter(w => state.known[wordKey(w)]).length;
   const pct = total ? Math.round((knownCount/total)*100) : 0;
@@ -5750,6 +5927,8 @@ function renderProgress(){
   document.getElementById("progressPct").textContent = pct + "%";
   document.getElementById("progressFill").style.width = pct + "%";
 }
+
+document.getElementById("btnReview").addEventListener("click", toggleReview);
 
 document.getElementById("btnFlipAll").addEventListener("click", () => {
   const list = currentList();
@@ -5882,23 +6061,569 @@ document.getElementById("verbSearchClear").addEventListener("click", () => {
 });
 
 /* ============ Cambio de modo ============ */
+/* ============ Entrenador de género (der/die/das) ============ */
+const GENDER_WORDS = VOCAB.filter(w => {
+  const art = w.de.split(" ")[0];
+  return PLURALS[wordKey(w)] && (art === "der" || art === "die" || art === "das");
+});
+
+let genderState = { queue: [], index: 0, correct: 0, total: 0, answered: false };
+let genderStats = { correct: 0, total: 0 };
+
+async function loadGenderStats(){
+  const GKEY = "vokabeln-gender-stats";
+  if(hasClaudeStorage){
+    try{
+      const res = await window.storage.get(GKEY);
+      if(res && res.value){ genderStats = JSON.parse(res.value); return; }
+    }catch(e){ /* seguir con localStorage como respaldo */ }
+  }
+  try{
+    const raw = safeLocalGet(GKEY);
+    if(raw){ genderStats = JSON.parse(raw); }
+  }catch(e){ genderStats = {correct:0, total:0}; }
+}
+async function saveGenderStats(){
+  const GKEY = "vokabeln-gender-stats";
+  const json = JSON.stringify(genderStats);
+  if(hasClaudeStorage){
+    try{ await window.storage.set(GKEY, json); return; }
+    catch(e){ /* seguir con localStorage como respaldo */ }
+  }
+  safeLocalSet(GKEY, json);
+}
+
+function startGenderRound(){
+  genderState.queue = shuffleArr(GENDER_WORDS.map(w => wordKey(w))).slice(0, 20);
+  genderState.index = 0;
+  genderState.correct = 0;
+  genderState.total = 0;
+  genderState.answered = false;
+  renderGenderScore();
+  renderGenderCard();
+}
+
+function renderGenderScore(){
+  document.getElementById("genderScore").innerHTML =
+    `<div>Ronda: <b>${genderState.correct}/${genderState.total}</b></div>` +
+    `<div>Historial: <b>${genderStats.correct}/${genderStats.total}</b></div>`;
+}
+
+function renderGenderCard(){
+  const el = document.getElementById("genderCard");
+  if(genderState.index >= genderState.queue.length){
+    const pct = genderState.total ? Math.round((genderState.correct/genderState.total)*100) : 0;
+    el.innerHTML = `
+      <div class="game-card game-summary">
+        <div class="gs-big">${pct}%</div>
+        <div>Acertaste ${genderState.correct} de ${genderState.total} en esta ronda.</div>
+      </div>`;
+    return;
+  }
+  const key = genderState.queue[genderState.index];
+  const w = VOCAB_BY_KEY[key];
+  const article = w.de.split(" ")[0];
+  const noun = w.de.slice(article.length + 1);
+  const iconSvg = ICONS[key] || `<circle cx="50" cy="50" r="30" ${S}/>`;
+
+  el.innerHTML = `
+    <div class="game-card">
+      <div class="icon-wrap"><svg viewBox="0 0 100 100">${iconSvg}</svg></div>
+      <div class="gc-es">${w.es}</div>
+      <div class="gc-noun">${noun}</div>
+      <div class="article-row">
+        <button class="article-btn" data-art="der">der</button>
+        <button class="article-btn" data-art="die">die</button>
+        <button class="article-btn" data-art="das">das</button>
+      </div>
+    </div>`;
+
+  el.querySelectorAll(".article-btn").forEach(btn => {
+    btn.addEventListener("click", () => handleGenderAnswer(btn.dataset.art, article));
+  });
+}
+
+function getPluralExample(plural){
+  return `Das sind ${plural}.`;
+}
+
+async function handleGenderAnswer(chosen, correctArt){
+  if(genderState.answered) return;
+  genderState.answered = true;
+  genderState.total++;
+  genderStats.total++;
+  const isCorrect = chosen === correctArt;
+  if(isCorrect){ genderState.correct++; genderStats.correct++; }
+  await saveGenderStats();
+
+  document.querySelectorAll(".article-btn").forEach(btn => {
+    btn.disabled = true;
+    if(btn.dataset.art === correctArt) btn.classList.add("correct");
+    else if(btn.dataset.art === chosen) btn.classList.add("wrong");
+  });
+  renderGenderScore();
+
+  const key = genderState.queue[genderState.index];
+  const w = VOCAB_BY_KEY[key];
+  const plural = getPlural(w);
+  if(plural){
+    const resultLine = isCorrect
+      ? `✅ ¡Muy bien! Recuerda: en plural es <b>${plural}</b>.`
+      : `❌ Era «${correctArt}». En plural es <b>${plural}</b>.`;
+    const singularEx = getExample(w);
+    const pluralEx = getPluralExample(plural);
+    const info = document.createElement("div");
+    info.className = "gender-info";
+    info.innerHTML = `
+      <div class="plural-line">${resultLine}</div>
+      <div class="example">${singularEx}</div>
+      <div class="example">${pluralEx}</div>
+    `;
+    document.getElementById("genderCard").querySelector(".game-card").appendChild(info);
+  }
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "game-next";
+  nextBtn.textContent = "Siguiente →";
+  nextBtn.addEventListener("click", () => {
+    genderState.index++;
+    genderState.answered = false;
+    renderGenderCard();
+  });
+  document.getElementById("genderCard").querySelector(".game-card").appendChild(nextBtn);
+}
+
+document.getElementById("genderRestart").addEventListener("click", startGenderRound);
+
+/* ============ Modo examen (opción múltiple) ============ */
+let examState = { cat: "todos", queue: [], index: 0, correct: 0, total: 0, answered: false, history: [] };
+
+function examPool(){
+  if(examState.cat === "todos") return VOCAB;
+  return VOCAB.filter(w => w.cat === examState.cat);
+}
+
+function renderExamCats(){
+  const el = document.getElementById("examCats");
+  const rest = Object.keys(CAT_LABELS).filter(c => c !== "todos")
+    .sort((a,b) => CAT_LABELS[a].localeCompare(CAT_LABELS[b], "es"));
+  const cats = ["todos", ...rest];
+  el.innerHTML = "";
+  cats.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "cat-pill" + (c === examState.cat ? " active" : "");
+    btn.textContent = CAT_LABELS[c];
+    btn.onclick = () => { examState.cat = c; startExamRound(); };
+    el.appendChild(btn);
+  });
+}
+
+function startExamRound(){
+  const pool = examPool();
+  const n = Math.min(15, pool.length);
+  examState.queue = shuffleArr(pool.map(w => wordKey(w))).slice(0, n);
+  examState.index = 0;
+  examState.correct = 0;
+  examState.total = 0;
+  examState.answered = false;
+  examState.history = [];
+  renderExamCats();
+  renderExamScore();
+  renderExamCard();
+}
+
+function renderExamScore(){
+  document.getElementById("examScore").innerHTML =
+    `<div>Pregunta <b>${Math.min(examState.index+1, examState.queue.length)}/${examState.queue.length}</b></div>` +
+    `<div>Aciertos: <b>${examState.correct}/${examState.total}</b></div>`;
+}
+
+function pickDistractors(correctWord, pool, n){
+  const sameCat = pool.filter(w => w.cat === correctWord.cat && w.de !== correctWord.de);
+  const source = sameCat.length >= n ? sameCat : VOCAB.filter(w => w.de !== correctWord.de);
+  return shuffleArr(source).slice(0, n);
+}
+
+function renderExamSummary(el){
+  const pct = examState.total ? Math.round((examState.correct/examState.total)*100) : 0;
+  const wrongOnes = examState.history.filter(h => !h.isCorrect);
+  const rightOnes = examState.history.filter(h => h.isCorrect);
+
+  const wrongHtml = wrongOnes.map(h => {
+    const w = VOCAB_BY_KEY[h.key];
+    const example = getExample(w);
+    return `
+      <div class="exam-review-item wrong">
+        <div class="eri-head"><span>${w.es}</span><span class="eri-mark">❌</span></div>
+        <div class="eri-chosen">Tu respuesta: ${h.chosen}</div>
+        <div class="eri-correct-answer">Correcto: ${h.correctDe}</div>
+        <div class="eri-example">${example}</div>
+      </div>`;
+  }).join("");
+
+  const rightHtml = rightOnes.map(h => {
+    const w = VOCAB_BY_KEY[h.key];
+    return `<div class="exam-review-item correct"><div class="eri-head"><span>${w.es} — ${h.correctDe}</span><span class="eri-mark">✅</span></div></div>`;
+  }).join("");
+
+  el.innerHTML = `
+    <div class="game-card game-summary">
+      <div class="gs-big">${pct}%</div>
+      <div>Acertaste ${examState.correct} de ${examState.total} preguntas.</div>
+      ${wrongOnes.length ? `<div class="exam-review"><div class="tense-title">Para repasar</div>${wrongHtml}</div>` : ''}
+      ${rightOnes.length ? `<div class="exam-review"><div class="tense-title">Correctas</div>${rightHtml}</div>` : ''}
+    </div>`;
+}
+
+function renderExamCard(){
+  renderExamScore();
+  const el = document.getElementById("examCard");
+  if(examState.index >= examState.queue.length){
+    renderExamSummary(el);
+    return;
+  }
+  const key = examState.queue[examState.index];
+  const w = VOCAB_BY_KEY[key];
+  const iconSvg = ICONS[key] || `<circle cx="50" cy="50" r="30" ${S}/>`;
+  const distractors = pickDistractors(w, examPool().length >= 4 ? examPool() : VOCAB, 3);
+  const options = shuffleArr([w, ...distractors]);
+
+  el.innerHTML = `
+    <div class="game-card">
+      <div class="icon-wrap"><svg viewBox="0 0 100 100">${iconSvg}</svg></div>
+      <div class="gc-es">${w.es}</div>
+      <div class="exam-options">
+        ${options.map(o => `<button class="exam-option" data-de="${o.de.replace(/"/g,'&quot;')}">${o.de}</button>`).join("")}
+      </div>
+    </div>`;
+
+  el.querySelectorAll(".exam-option").forEach(btn => {
+    btn.addEventListener("click", () => handleExamAnswer(key, btn.dataset.de, w.de));
+  });
+}
+
+function handleExamAnswer(key, chosen, correctDe){
+  if(examState.answered) return;
+  examState.answered = true;
+  examState.total++;
+  const isCorrect = chosen === correctDe;
+  if(isCorrect) examState.correct++;
+  examState.history.push({ key, chosen, correctDe, isCorrect });
+
+  document.querySelectorAll(".exam-option").forEach(btn => {
+    btn.disabled = true;
+    if(btn.dataset.de === correctDe) btn.classList.add("correct");
+    else if(btn.dataset.de === chosen) btn.classList.add("wrong");
+  });
+  renderExamScore();
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "game-next";
+  nextBtn.textContent = examState.index + 1 < examState.queue.length ? "Siguiente →" : "Ver resultado";
+  nextBtn.addEventListener("click", () => {
+    examState.index++;
+    examState.answered = false;
+    renderExamCard();
+  });
+  document.getElementById("examCard").querySelector(".game-card").appendChild(nextBtn);
+}
+
+document.getElementById("examRestart").addEventListener("click", startExamRound);
+
+/* ============ Verbos: juego de Tiempos ============ */
+const TENSE_LABELS = { presente: "Presente", pasado: "Pasado", perfecto: "Perfecto", futuro: "Futuro" };
+const TENSE_KEYS = ["presente", "pasado", "perfecto", "futuro"];
+const PRONOUNS = ["ich", "du", "er", "wir", "ihr", "sie"];
+
+function getTenseForm(v, tense){
+  const key = `verbos::${v.es}`;
+  if(tense === "presente") return VERB_CONJUGATIONS[key];
+  if(tense === "pasado") return getPreterite(key);
+  if(tense === "perfecto") return getPerfekt(key);
+  if(tense === "futuro") return getFutur(v.de);
+  return null;
+}
+
+let tensesState = { queue: [], index: 0, correct: 0, total: 0, answered: false };
+
+function buildTenseQuestion(){
+  const v = VERBS_LIST[Math.floor(Math.random() * VERBS_LIST.length)];
+  const tense = TENSE_KEYS[Math.floor(Math.random() * TENSE_KEYS.length)];
+  const forms = getTenseForm(v, tense);
+  const pronoun = PRONOUNS[Math.floor(Math.random() * PRONOUNS.length)];
+  const correct = forms[pronoun];
+  const distractorPronouns = shuffleArr(PRONOUNS.filter(p => p !== pronoun)).slice(0, 3);
+  const options = shuffleArr([correct, ...distractorPronouns.map(p => forms[p])]);
+  return { v, tense, pronoun, correct, options };
+}
+
+function startTensesRound(){
+  tensesState.queue = Array.from({length: 15}, buildTenseQuestion);
+  tensesState.index = 0;
+  tensesState.correct = 0;
+  tensesState.total = 0;
+  tensesState.answered = false;
+  renderTensesScore();
+  renderTensesCard();
+}
+
+function renderTensesScore(){
+  document.getElementById("tensesScore").innerHTML =
+    `<div>Pregunta <b>${Math.min(tensesState.index+1, tensesState.queue.length)}/${tensesState.queue.length}</b></div>` +
+    `<div>Aciertos: <b>${tensesState.correct}/${tensesState.total}</b></div>`;
+}
+
+function renderTensesCard(){
+  renderTensesScore();
+  const el = document.getElementById("tensesCard");
+  if(tensesState.index >= tensesState.queue.length){
+    const pct = tensesState.total ? Math.round((tensesState.correct/tensesState.total)*100) : 0;
+    el.innerHTML = `
+      <div class="game-card game-summary">
+        <div class="gs-big">${pct}%</div>
+        <div>Acertaste ${tensesState.correct} de ${tensesState.total} preguntas.</div>
+      </div>`;
+    return;
+  }
+  const q = tensesState.queue[tensesState.index];
+  el.innerHTML = `
+    <div class="game-card">
+      <div class="gc-es">${q.v.es} <span style="opacity:.5;font-style:italic;">(${q.v.de})</span></div>
+      <div class="tense-question"><span class="tq-tense">${TENSE_LABELS[q.tense]}</span> · <b>${q.pronoun}</b></div>
+      <div class="exam-options">
+        ${q.options.map(o => `<button class="exam-option" data-form="${o.replace(/"/g,'&quot;')}">${o}</button>`).join("")}
+      </div>
+    </div>`;
+  el.querySelectorAll(".exam-option").forEach(btn => {
+    btn.addEventListener("click", () => handleTensesAnswer(btn.dataset.form, q));
+  });
+}
+
+function pronounCap(p){
+  const map = {ich:"Ich", du:"Du", er:"Er", wir:"Wir", ihr:"Ihr", sie:"Sie"};
+  return map[p] || p;
+}
+function buildTenseExample(pronoun, form){
+  return `${pronounCap(pronoun)} ${form}.`;
+}
+
+function handleTensesAnswer(chosen, q){
+  if(tensesState.answered) return;
+  tensesState.answered = true;
+  tensesState.total++;
+  const isCorrect = chosen === q.correct;
+  if(isCorrect) tensesState.correct++;
+
+  document.querySelectorAll("#tensesCard .exam-option").forEach(btn => {
+    btn.disabled = true;
+    if(btn.dataset.form === q.correct) btn.classList.add("correct");
+    else if(btn.dataset.form === chosen) btn.classList.add("wrong");
+  });
+  renderTensesScore();
+
+  const resultLine = isCorrect
+    ? `✅ ¡Correcto! <b>${q.v.de}</b> en ${TENSE_LABELS[q.tense].toLowerCase()}, «${q.pronoun}».`
+    : `❌ Era «<b>${q.correct}</b>». <b>${q.v.de}</b> en ${TENSE_LABELS[q.tense].toLowerCase()}, «${q.pronoun}».`;
+  const example = buildTenseExample(q.pronoun, q.correct);
+  const info = document.createElement("div");
+  info.className = "gender-info";
+  info.innerHTML = `
+    <div class="plural-line">${resultLine}</div>
+    <div class="example">${example}</div>
+  `;
+  document.getElementById("tensesCard").querySelector(".game-card").appendChild(info);
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "game-next";
+  nextBtn.textContent = tensesState.index + 1 < tensesState.queue.length ? "Siguiente →" : "Ver resultado";
+  nextBtn.addEventListener("click", () => {
+    tensesState.index++;
+    tensesState.answered = false;
+    renderTensesCard();
+  });
+  document.getElementById("tensesCard").querySelector(".game-card").appendChild(nextBtn);
+}
+
+document.getElementById("tensesRestart").addEventListener("click", startTensesRound);
+
+/* ============ Verbos: Examen (infinitivo es → de) ============ */
+let examVState = { queue: [], index: 0, correct: 0, total: 0, answered: false, history: [] };
+
+function startExamVRound(){
+  const n = Math.min(15, VERBS_LIST.length);
+  examVState.queue = shuffleArr(VERBS_LIST.map(v => v.es)).slice(0, n);
+  examVState.index = 0;
+  examVState.correct = 0;
+  examVState.total = 0;
+  examVState.answered = false;
+  examVState.history = [];
+  renderExamVScore();
+  renderExamVCard();
+}
+
+function renderExamVScore(){
+  document.getElementById("examVScore").innerHTML =
+    `<div>Pregunta <b>${Math.min(examVState.index+1, examVState.queue.length)}/${examVState.queue.length}</b></div>` +
+    `<div>Aciertos: <b>${examVState.correct}/${examVState.total}</b></div>`;
+}
+
+function pickVerbDistractors(correctEs, n){
+  return shuffleArr(VERBS_LIST.filter(v => v.es !== correctEs)).slice(0, n);
+}
+
+function renderExamVSummary(el){
+  const pct = examVState.total ? Math.round((examVState.correct/examVState.total)*100) : 0;
+  const wrongOnes = examVState.history.filter(h => !h.isCorrect);
+  const rightOnes = examVState.history.filter(h => h.isCorrect);
+
+  const wrongHtml = wrongOnes.map(h => {
+    const example = VERB_EXAMPLES[`verbos::${h.es}`] || "";
+    return `
+      <div class="exam-review-item wrong">
+        <div class="eri-head"><span>${h.es}</span><span class="eri-mark">❌</span></div>
+        <div class="eri-chosen">Tu respuesta: ${h.chosen}</div>
+        <div class="eri-correct-answer">Correcto: ${h.correctDe}</div>
+        ${example ? `<div class="eri-example">${example}</div>` : ''}
+      </div>`;
+  }).join("");
+
+  const rightHtml = rightOnes.map(h =>
+    `<div class="exam-review-item correct"><div class="eri-head"><span>${h.es} — ${h.correctDe}</span><span class="eri-mark">✅</span></div></div>`
+  ).join("");
+
+  el.innerHTML = `
+    <div class="game-card game-summary">
+      <div class="gs-big">${pct}%</div>
+      <div>Acertaste ${examVState.correct} de ${examVState.total} verbos.</div>
+      ${wrongOnes.length ? `<div class="exam-review"><div class="tense-title">Para repasar</div>${wrongHtml}</div>` : ''}
+      ${rightOnes.length ? `<div class="exam-review"><div class="tense-title">Correctos</div>${rightHtml}</div>` : ''}
+    </div>`;
+}
+
+function renderExamVCard(){
+  renderExamVScore();
+  const el = document.getElementById("examVCard");
+  if(examVState.index >= examVState.queue.length){
+    renderExamVSummary(el);
+    return;
+  }
+  const es = examVState.queue[examVState.index];
+  const v = VERBS_LIST.find(x => x.es === es);
+  const distractors = pickVerbDistractors(es, 3);
+  const options = shuffleArr([v, ...distractors]);
+  el.innerHTML = `
+    <div class="game-card">
+      <div class="gc-es">${v.es}</div>
+      <div class="exam-options">
+        ${options.map(o => `<button class="exam-option" data-de="${o.de.replace(/"/g,'&quot;')}">${o.de}</button>`).join("")}
+      </div>
+    </div>`;
+  el.querySelectorAll(".exam-option").forEach(btn => {
+    btn.addEventListener("click", () => handleExamVAnswer(es, btn.dataset.de, v.de));
+  });
+}
+
+function handleExamVAnswer(es, chosen, correctDe){
+  if(examVState.answered) return;
+  examVState.answered = true;
+  examVState.total++;
+  const isCorrect = chosen === correctDe;
+  if(isCorrect) examVState.correct++;
+  examVState.history.push({ es, chosen, correctDe, isCorrect });
+
+  document.querySelectorAll("#examVCard .exam-option").forEach(btn => {
+    btn.disabled = true;
+    if(btn.dataset.de === correctDe) btn.classList.add("correct");
+    else if(btn.dataset.de === chosen) btn.classList.add("wrong");
+  });
+  renderExamVScore();
+
+  const example = VERB_EXAMPLES[`verbos::${es}`] || "";
+  const resultLine = isCorrect
+    ? `✅ ¡Muy bien!`
+    : `❌ Era «<b>${correctDe}</b>».`;
+  const info = document.createElement("div");
+  info.className = "gender-info";
+  info.innerHTML = `
+    <div class="plural-line">${resultLine}</div>
+    ${example ? `<div class="example">${example}</div>` : ''}
+  `;
+  document.getElementById("examVCard").querySelector(".game-card").appendChild(info);
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "game-next";
+  nextBtn.textContent = examVState.index + 1 < examVState.queue.length ? "Siguiente →" : "Ver resultado";
+  nextBtn.addEventListener("click", () => {
+    examVState.index++;
+    examVState.answered = false;
+    renderExamVCard();
+  });
+  document.getElementById("examVCard").querySelector(".game-card").appendChild(nextBtn);
+}
+
+document.getElementById("examVRestart").addEventListener("click", startExamVRound);
+
+/* ============ Cambio de modo (2 niveles: modo principal + sub-pestaña) ============ */
+function updateSubText(){
+  const sub = document.getElementById("subText");
+  if(state.mode === "vocab"){
+    sub.textContent = state.vocabSub === "cards" ? "Toca una tarjeta para ver la palabra · ✓ para marcarla sabida"
+      : state.vocabSub === "gender" ? "Adivina el artículo correcto: der, die o das"
+      : "Elige la traducción correcta al alemán";
+  }else{
+    sub.textContent = state.verbSub === "conj" ? "Elige un verbo para ver su conjugación completa"
+      : state.verbSub === "tenses" ? "Elige la forma correcta según el tiempo y el pronombre"
+      : "Elige el infinitivo correcto en alemán";
+  }
+}
+
 function setMode(mode){
   state.mode = mode;
   document.getElementById("tabVocab").classList.toggle("active", mode === "vocab");
   document.getElementById("tabVerbs").classList.toggle("active", mode === "verbs");
-  document.getElementById("vocabSection").style.display = mode === "vocab" ? "" : "none";
-  document.getElementById("verbsSection").style.display = mode === "verbs" ? "" : "none";
-  const sub = document.getElementById("subText");
-  sub.textContent = mode === "vocab"
-    ? "Toca una tarjeta para ver la palabra · ✓ para marcarla sabida"
-    : "Elige un verbo para ver su conjugación completa";
+  document.getElementById("vocabWrap").style.display = mode === "vocab" ? "" : "none";
+  document.getElementById("verbsWrap").style.display = mode === "verbs" ? "" : "none";
+  updateSubText();
+}
+
+function setVocabSub(sub){
+  state.vocabSub = sub;
+  document.querySelectorAll("#vocabWrap .sub-tab").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.sub === sub);
+  });
+  document.getElementById("vocabSection").style.display = sub === "cards" ? "" : "none";
+  document.getElementById("genderSection").style.display = sub === "gender" ? "" : "none";
+  document.getElementById("examSection").style.display = sub === "exam" ? "" : "none";
+  if(sub === "gender" && genderState.queue.length === 0) startGenderRound();
+  if(sub === "exam" && examState.queue.length === 0) startExamRound();
+  updateSubText();
+}
+
+function setVerbSub(sub){
+  state.verbSub = sub;
+  document.querySelectorAll("#verbsWrap .sub-tab").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.sub === sub);
+  });
+  document.getElementById("verbsSection").style.display = sub === "conj" ? "" : "none";
+  document.getElementById("tensesSection").style.display = sub === "tenses" ? "" : "none";
+  document.getElementById("examVSection").style.display = sub === "examv" ? "" : "none";
+  if(sub === "tenses" && tensesState.queue.length === 0) startTensesRound();
+  if(sub === "examv" && examVState.queue.length === 0) startExamVRound();
+  updateSubText();
 }
 
 document.getElementById("tabVocab").addEventListener("click", () => setMode("vocab"));
 document.getElementById("tabVerbs").addEventListener("click", () => setMode("verbs"));
+document.querySelectorAll("#vocabWrap .sub-tab").forEach(btn => {
+  btn.addEventListener("click", () => setVocabSub(btn.dataset.sub));
+});
+document.querySelectorAll("#verbsWrap .sub-tab").forEach(btn => {
+  btn.addEventListener("click", () => setVerbSub(btn.dataset.sub));
+});
 
 (async function init(){
   await loadProgress();
+  await loadGenderStats();
   renderCats();
   renderBoard();
   renderVerbList();
