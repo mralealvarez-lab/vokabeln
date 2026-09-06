@@ -3826,7 +3826,8 @@ const CAT_LABELS = {
   social: "Vida social",
 };
 
-let state = { category: "instrumentos", known: {}, flipped: {}, query: "", mode: "vocab", vocabSub: "cards", verbSub: "conj", reviewMode: false, reviewQueue: [] };
+const urlCat = new URLSearchParams(location.search).get("cat");
+let state = { category: (urlCat && CAT_LABELS[urlCat]) ? urlCat : "instrumentos", known: {}, flipped: {}, query: "", mode: "vocab", vocabSub: "cards", verbSub: "conj", reviewMode: false, reviewQueue: [] };
 
 function normalize(str){
   return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
