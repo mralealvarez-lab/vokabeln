@@ -3827,7 +3827,8 @@ const CAT_LABELS = {
 };
 
 const urlCat = new URLSearchParams(location.search).get("cat");
-let state = { category: (urlCat && CAT_LABELS[urlCat]) ? urlCat : "instrumentos", known: {}, flipped: {}, query: "", mode: "vocab", vocabSub: "cards", verbSub: "conj", reviewMode: false, reviewQueue: [] };
+const urlWord = new URLSearchParams(location.search).get("word");
+let state = { category: (urlCat && CAT_LABELS[urlCat]) ? urlCat : "instrumentos", known: {}, flipped: {}, query: urlWord || "", mode: "vocab", vocabSub: "cards", verbSub: "conj", reviewMode: false, reviewQueue: [] };
 
 function normalize(str){
   return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -7385,6 +7386,10 @@ function checkAchievements(){
   await loadAchievements();
   updateStreak();
   await saveAchievements();
+  if(state.query.trim() !== ""){
+    document.getElementById("searchInput").value = state.query;
+    document.getElementById("searchClear").classList.add("show");
+  }
   renderCats();
   renderBoard();
   renderVerbList();
