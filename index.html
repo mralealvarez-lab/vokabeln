@@ -297,6 +297,22 @@
   }
   .achv-toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
 
+  .tip-card{
+    background: linear-gradient(160deg, var(--paper-hi) 0%, var(--paper) 60%);
+    border-radius: var(--r-lg); padding: 18px 16px; margin-bottom: 14px; box-shadow: var(--shadow-card);
+  }
+  .tip-title{ font-family: var(--display); font-weight:700; font-size:16px; color: var(--ink); margin-bottom:6px; }
+  .tip-note{ font-size:13px; color: rgba(20,20,20,0.7); line-height:1.4; margin-bottom:10px; }
+  .tip-examples{ display:flex; flex-direction:column; gap:6px; }
+  .tip-example{ background: rgba(20,20,20,0.05); border-radius: var(--r-sm); padding:9px 11px; display:flex; align-items:flex-start; gap:8px; }
+  .tip-example .te-speak{
+    flex:0 0 auto; width:24px; height:24px; border-radius:999px; border:none; background: rgba(20,20,20,0.08);
+    font-size:11px; cursor:pointer; margin-top:1px;
+  }
+  .tip-example .te-text{ flex:1; }
+  .tip-example .te-de{ font-family: var(--display); font-style:italic; font-weight:600; font-size:13px; color: var(--ink); }
+  .tip-example .te-es{ font-size:11.5px; color: rgba(20,20,20,0.6); margin-top:2px; }
+
   .exam-review{ margin-top:20px; text-align:left; }
   .exam-review-item{
     background: rgba(20,20,20,0.05); border-radius: var(--r-sm); padding:10px 12px; margin-bottom:8px;
@@ -324,9 +340,18 @@
   .verb-chip .vc-de{ font-size:11px; font-style:italic; color: rgba(20,20,20,0.6); margin-top:2px; }
 
   .verb-detail{
+    grid-column: 1 / -1;
     background: linear-gradient(160deg, var(--paper-hi) 0%, var(--paper) 60%);
     border-radius: var(--r-lg); padding: 20px 16px 24px;
     box-shadow: var(--shadow-lift);
+    animation: verbDetailOpen .25s cubic-bezier(.22,.85,.34,1);
+  }
+  @keyframes verbDetailOpen{
+    from{ opacity:0; transform: translateY(-6px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .verb-detail{ animation: none; }
   }
   .verb-detail .vd-head{ text-align:center; margin-bottom: 14px; position:relative; }
   .verb-detail .vd-es{ font-size:12.5px; font-style:italic; letter-spacing:0.02em; color: rgba(20,20,20,0.5); font-weight:600; }
@@ -380,6 +405,7 @@
   <div class="mode-tabs">
     <button class="mode-tab active" id="tabVocab" data-mode="vocab">📇 Vocabulario</button>
     <button class="mode-tab" id="tabVerbs" data-mode="verbs">🗣️ Verbos</button>
+    <button class="mode-tab" id="tabColoq" data-mode="coloq">💬 Coloquial</button>
   </div>
 
   <div id="vocabWrap">
@@ -465,7 +491,6 @@
         <button class="search-clear" id="verbSearchClear">✕</button>
       </div>
       <div class="verb-list" id="verbList"></div>
-      <div id="verbDetail"></div>
     </div>
 
     <div id="tensesSection" style="display:none;">
@@ -498,6 +523,25 @@
       <div class="game-restart-row">
         <button class="btn btn-reset" id="dictadoVRestart">🔁 Nueva ronda</button>
       </div>
+    </div>
+  </div>
+
+  <div id="coloqWrap" style="display:none;">
+    <div class="sub-tabs">
+      <button class="sub-tab active" data-sub="nativo">🗣️ Nativo</button>
+      <button class="sub-tab" data-sub="tips">💡 Tips</button>
+    </div>
+
+    <div id="nativoSection">
+      <div class="search-wrap">
+        <input class="search-input" id="coloqSearchInput" type="text" placeholder="Buscar palabra o expresión…" autocomplete="off">
+        <button class="search-clear" id="coloqSearchClear">✕</button>
+      </div>
+      <div class="verb-list" id="coloqList"></div>
+    </div>
+
+    <div id="tipsSection" style="display:none;">
+      <div id="tipsList"></div>
     </div>
   </div>
 </div>
@@ -3828,7 +3872,7 @@ const CAT_LABELS = {
 
 const urlCat = new URLSearchParams(location.search).get("cat");
 const urlWord = new URLSearchParams(location.search).get("word");
-let state = { category: (urlCat && CAT_LABELS[urlCat]) ? urlCat : "instrumentos", known: {}, flipped: {}, query: urlWord || "", mode: "vocab", vocabSub: "cards", verbSub: "conj", reviewMode: false, reviewQueue: [] };
+let state = { category: (urlCat && CAT_LABELS[urlCat]) ? urlCat : "instrumentos", known: {}, flipped: {}, query: urlWord || "", mode: "vocab", vocabSub: "cards", verbSub: "conj", coloqSub: "nativo", reviewMode: false, reviewQueue: [] };
 
 function normalize(str){
   return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -5791,6 +5835,464 @@ const VERBS_LIST = [
   {es:"practicar", de:"üben"},
 ];
 
+const COLOQUIAL_LIST = [
+ {de:"doch", es:"claro que sí / al contrario",
+  note:"Se usa para contradecir una pregunta o afirmación negativa. No existe una palabra igual en español — normalmente se traduce con toda una frase.",
+  example:"—Kommst du nicht mit? —Doch! (—¿No vienes? —¡Claro que sí!)"},
+ {de:"na", es:"¿y bien? / vaya",
+  note:"Partícula de saludo o para iniciar una frase, muy versátil — cambia de significado según el tono con que se diga.",
+  example:"Na, wie geht's? (¿Qué tal, cómo estás?)"},
+ {de:"halt", es:"es que / simplemente",
+  note:"Partícula típica del sur de Alemania que suaviza una afirmación, como diciendo 'así son las cosas'.",
+  example:"Das ist halt so. (Así son las cosas, ni modo.)"},
+ {de:"eben", es:"exacto / precisamente",
+  note:"Muy parecido a 'halt' — confirma algo obvio o cierra una idea.",
+  example:"Eben deshalb gehe ich nicht. (Precisamente por eso no voy.)"},
+ {de:"mal", es:"a ver / un momento",
+  note:"Suaviza una petición u orden, la hace sonar menos brusca. Se usa constantemente en el habla diaria.",
+  example:"Komm mal her! (Ven un momentito.)"},
+ {de:"ne", es:"¿no? / ¿verdad?",
+  note:"Forma corta y muy coloquial de 'nicht wahr', se pega al final de una frase para pedir confirmación.",
+  example:"Das ist cool, ne? (Está genial, ¿no?)"},
+ {de:"geil", es:"genial / de lujo",
+  note:"Originalmente vulgar, pero hoy es una de las palabras más comunes entre jóvenes para decir que algo es increíble.",
+  example:"Das Konzert war voll geil! (¡El concierto estuvo buenísimo!)"},
+ {de:"krass", es:"una locura / fuerte",
+  note:"Para algo impactante, sea bueno o malo — el sentido exacto depende del tono.",
+  example:"Krass, das wusste ich nicht! (¡Wow, no lo sabía!)"},
+ {de:"Alter", es:"tío / viejo (como muletilla)",
+  note:"Literalmente significa 'anciano', pero como muletilla equivale a 'tío' o 'viejo' entre amigos — no tiene que ver con la edad.",
+  example:"Alter, das war krass! (¡Tío, eso fue una locura!)"},
+ {de:"Digga", es:"bro / parce",
+  note:"Jerga juvenil de origen berlinés, el equivalente más cercano a 'bro' o 'parce' entre amigos.",
+  example:"Was geht, Digga? (¿Qué onda, bro?)"},
+ {de:"boah", es:"¡wow! / ¡uf!",
+  note:"Interjección para sorpresa, admiración o fastidio — el significado exacto lo da el tono de voz.",
+  example:"Boah, ist das kalt! (¡Uf, qué frío hace!)"},
+ {de:"ey", es:"oye / eh",
+  note:"Para llamar la atención de alguien de forma informal, a veces con un toque de reclamo.",
+  example:"Ey, warte mal! (¡Oye, espera!)"},
+ {de:"moin", es:"hola",
+  note:"Saludo informal del norte de Alemania que se usa a cualquier hora del día, no solo en la mañana.",
+  example:"Moin! Alles klar? (¡Hola! ¿Todo bien?)"},
+ {de:"tschüss", es:"chao / adiós",
+  note:"La despedida informal más común del día a día, mucho más relajada que 'Auf Wiedersehen'.",
+  example:"Ich muss los, tschüss! (Me tengo que ir, ¡chao!)"},
+ {de:"mach's gut", es:"cuídate",
+  note:"Despedida cercana entre amigos, literalmente 'hazlo bien'.",
+  example:"Mach's gut, bis bald! (¡Cuídate, hasta pronto!)"},
+ {de:"alles klar", es:"todo bien / entendido",
+  note:"Confirma que algo quedó claro o que todo está en orden — se usa muchísimo como respuesta corta.",
+  example:"Alles klar, bis morgen! (Entendido, ¡hasta mañana!)"},
+ {de:"kein Ding", es:"no hay problema / de nada",
+  note:"Versión casual de 'kein Problem', se usa para responder a un agradecimiento igual que 'de nada'.",
+  example:"—Danke! —Kein Ding! (—¡Gracias! —¡No hay de qué!)"},
+ {de:"Quatsch", es:"tonterías",
+  note:"Para descartar algo como una tontería o mentira; también se usa solo, como interjección.",
+  example:"Quatsch, das stimmt nicht! (¡Tonterías, eso no es verdad!)"},
+ {de:"keine Ahnung", es:"ni idea",
+  note:"La forma más común de decir que no sabes algo, mucho más frecuente en el habla diaria que 'ich weiß es nicht'.",
+  example:"—Wo ist er? —Keine Ahnung. (—¿Dónde está? —Ni idea.)"},
+ {de:"na klar", es:"por supuesto / claro",
+  note:"Afirmación entusiasta y muy natural, más casual que 'natürlich'.",
+  example:"Na klar helfe ich dir! (¡Claro que te ayudo!)"},
+ {de:"jein", es:"más o menos",
+  note:"Mezcla de 'ja' (sí) y 'nein' (no), para cuando la respuesta no es un sí o no rotundo.",
+  example:"—Bist du fertig? —Jein. (—¿Ya terminaste? —Más o menos.)"},
+ {de:"chillen", es:"relajarse / chillear",
+  note:"Verbo prestado del inglés, totalmente integrado al alemán coloquial de todos los días.",
+  example:"Wir chillen heute Abend zu Hause. (Hoy en la noche nos quedamos relajando en casa.)"},
+ {de:"abhängen", es:"pasar el rato",
+  note:"Literalmente 'colgar de algo', pero como expresión significa quedar con amigos sin planes concretos.",
+  example:"Wir hängen einfach im Park ab. (Solo vamos a pasar el rato en el parque.)"},
+ {de:"Bock haben (auf)", es:"tener ganas (de)",
+  note:"Expresión informal muy común para decir que te apetece algo.",
+  example:"Ich hab Bock auf Pizza. (Tengo ganas de pizza.)"},
+ {de:"keinen Bock haben", es:"no tener ganas para nada",
+  note:"El opuesto de 'Bock haben' — indica pereza o desgano total hacia algo.",
+  example:"Ich hab keinen Bock mehr. (Ya no tengo ganas de nada.)"},
+ {de:"zocken", es:"jugar videojuegos",
+  note:"Verbo coloquial específico para videojuegos, no se usa para otro tipo de juego.",
+  example:"Wir zocken heute online. (Hoy jugamos videojuegos en línea.)"},
+ {de:"labern", es:"hablar sin parar / cotorrear",
+  note:"Tiene un matiz un poco negativo, como decir que alguien habla mucho sin decir nada importante.",
+  example:"Hör auf zu labern! (¡Deja de cotorrear!)"},
+ {de:"Feierabend", es:"fin de la jornada laboral",
+  note:"No existe una palabra exacta en español — es ese momento en que terminas de trabajar y empieza tu tiempo libre, casi como una pequeña celebración.",
+  example:"Endlich Feierabend! (¡Por fin se acabó el trabajo!)"},
+ {de:"Kater", es:"resaca",
+  note:"Literalmente significa 'gato macho', pero es la palabra estándar (no vulgar) para la resaca del día siguiente.",
+  example:"Ich hab einen fetten Kater. (Tengo una resaca tremenda.)"},
+ {de:"Ohrwurm", es:"canción pegajosa",
+  note:"Literalmente 'gusano de oído' — esa canción que se te queda repitiendo en la cabeza todo el día.",
+  example:"Dieses Lied ist so ein Ohrwurm! (¡Esta canción se me quedó pegada en la cabeza!)"},
+ {de:"Fernweh", es:"morriña de viajar",
+  note:"Lo opuesto a la nostalgia por el hogar (Heimweh) — es la nostalgia por lugares lejanos que ni siquiera conoces.",
+  example:"Ich habe Fernweh nach Südamerika. (Tengo unas ganas enormes de viajar a Sudamérica.)"},
+ {de:"Kummerspeck", es:"kilos de más por comer de tristeza",
+  note:"Literalmente 'tocino de las penas' — el peso que se sube por comer emocionalmente.",
+  example:"Nach der Trennung habe ich Kummerspeck angesetzt. (Después de la ruptura subí de peso por comer de tristeza.)"},
+ {de:"Treppenwitz", es:"la respuesta que se te ocurre tarde",
+  note:"Literalmente 'chiste de la escalera' — esa réplica perfecta que piensas justo cuando ya te fuiste.",
+  example:"Mir fiel der perfekte Treppenwitz erst zu Hause ein. (La respuesta perfecta se me ocurrió hasta llegar a casa.)"},
+ {de:"Torschlusspanik", es:"pánico a que se acabe el tiempo",
+  note:"Literalmente 'pánico de que se cierre la puerta' — el miedo a que se te escapen las oportunidades de la vida.",
+  example:"Mit 30 bekam sie plötzlich Torschlusspanik. (A los 30 le entró de repente el miedo a que se le acabara el tiempo.)"},
+ {de:"Weltschmerz", es:"hastío del mundo",
+  note:"Una tristeza melancólica y profunda por el estado del mundo en general, sin una causa concreta.",
+  example:"An manchen Tagen habe ich einfach Weltschmerz. (Hay días en que simplemente siento este peso del mundo.)"},
+ {de:"sowieso", es:"de todos modos",
+  note:"Muy usado para reforzar que algo iba a pasar sin importar las circunstancias.",
+  example:"Ich komme sowieso zu spät. (De todos modos voy a llegar tarde.)"},
+ {de:"eigentlich", es:"en realidad / técnicamente",
+  note:"Matiza una respuesta, sugiriendo que la realidad es distinta de lo esperado — una de las palabras más usadas en el alemán cotidiano.",
+  example:"Eigentlich wollte ich zu Hause bleiben. (En realidad quería quedarme en casa.)"},
+ {de:"genau", es:"exacto",
+  note:"Confirma algo con entusiasmo, muchísimo más común en la conversación diaria que un simple 'ja'.",
+  example:"Genau, so ist es! (¡Exacto, así es!)"},
+
+ {de:"Schadenfreude", es:"alegría por la desgracia ajena",
+  note:"Una de las palabras alemanas más famosas en el mundo por no tener equivalente exacto en casi ningún idioma — ese placer culpable al ver que algo malo le pasa a otro.",
+  example:"Ich hab ein bisschen Schadenfreude, sorry! (Me da un poco de risa tu mala suerte, ¡perdón!)"},
+ {de:"gemütlich", es:"acogedor / a gusto",
+  note:"Concepto muy alemán, parecido al 'hygge' danés — describe un ambiente cálido y relajado, pero también se usa para personas o momentos tranquilos. No hay una sola palabra en español que lo cubra del todo.",
+  example:"Das Café ist total gemütlich. (El café es súper acogedor.)"},
+ {de:"Mahlzeit", es:"¡buen provecho! / ¡hola!",
+  note:"Literalmente significa 'comida', pero se usa como saludo informal a la hora del almuerzo, típico en oficinas alemanas — casi como decir '¡hola, ya es hora de comer!'.",
+  example:"Mahlzeit! Isst du auch in der Kantine? (¡Buen provecho! ¿Vas a comer también en el comedor?)"},
+ {de:"Prost", es:"¡salud!",
+  note:"Lo que se dice al brindar, siempre chocando los vasos y mirando a los ojos — no hacerlo se considera un poco de mala suerte entre alemanes.",
+  example:"Prost! Auf die Freundschaft! (¡Salud! ¡Por la amistad!)"},
+ {de:"auf jeden Fall", es:"sin duda / claro que sí",
+  note:"Expresión muy común para afirmar algo con fuerza, mucho más natural en el habla que 'definitiv' o 'sicherlich'.",
+  example:"Kommst du morgen? Auf jeden Fall! (¿Vienes mañana? ¡Por supuesto!)"},
+ {de:"auf keinen Fall", es:"de ninguna manera",
+  note:"El opuesto exacto de 'auf jeden Fall' — una negativa rotunda y muy usada en el día a día.",
+  example:"Das mache ich auf keinen Fall. (Eso no lo hago de ninguna manera.)"},
+ {de:"geht klar", es:"dalo por hecho / va que va",
+  note:"Respuesta informal para confirmar que algo se va a cumplir, muy típica entre amigos o en ambientes relajados de trabajo.",
+  example:"—Bringst du das Bier mit? —Geht klar! (—¿Traes la cerveza? —¡Dalo por hecho!)"},
+ {de:"Mist!", es:"¡rayos! / ¡diablos!",
+  note:"Interjección de fastidio, la versión 'decente' de una mala palabra alemana — se puede decir en casi cualquier contexto sin sonar grosero.",
+  example:"Mist, ich hab meinen Schlüssel vergessen! (¡Rayos, se me olvidaron las llaves!)"},
+ {de:"verplant sein", es:"tener la agenda a full",
+  note:"Describe a alguien con tantos compromisos que ya no tiene tiempo libre — muy común escucharlo entre gente muy ocupada.",
+  example:"Diese Woche bin ich total verplant. (Esta semana tengo la agenda hasta el tope.)"},
+ {de:"nur Bahnhof verstehen", es:"no entender absolutamente nada",
+  note:"Literalmente 'solo entender estación de tren' — un modismo curioso para cuando algo te suena a chino, sin ninguna relación literal con trenes.",
+  example:"Bei Mathe verstehe ich nur Bahnhof. (En matemáticas no entiendo absolutamente nada.)"},
+ {de:"Ich glaub, mein Schwein pfeift", es:"no puedo creerlo",
+  note:"Literalmente 'creo que mi cerdo silba' — una expresión disparatada y muy divertida para expresar incredulidad o sorpresa total.",
+  example:"Er hat WAS gesagt? Ich glaub, mein Schwein pfeift! (¿Dijo QUÉ? ¡No puedo creerlo!)"},
+ {de:"auf die Schnelle", es:"rapidito / al vuelo",
+  note:"Para algo hecho con prisa, sin mucha preparación — muy natural en conversaciones sobre comida, planes o tareas improvisadas.",
+  example:"Ich mach uns auf die Schnelle was zu essen. (Te preparo algo de comer rapidito.)"},
+];
+
+const GRAMMAR_TIPS = [
+ {title:"Dos formas de decir que te gusta algo",
+  note:"Ambas son correctas, pero 'gefallen' suena más natural y es la que más vas a escuchar en boca de alemanes.",
+  examples:[
+    {de:"Ich mag Musik.", es:"Me gusta la música. (directo, calcado del español)"},
+    {de:"Musik gefällt mir.", es:"Me gusta la música. (más natural/común en alemán)"}
+  ]},
+ {title:"Preguntar la hora: dos formas igual de válidas",
+  note:"'Wie spät ist es?' es la más común en el habla diaria; 'Wie viel Uhr ist es?' es igual de correcta pero un poco más formal.",
+  examples:[
+    {de:"Wie spät ist es?", es:"¿Qué hora es? (más habitual)"},
+    {de:"Wie viel Uhr ist es?", es:"¿Qué hora es? (más formal)"}
+  ]},
+ {title:"Al hablar, casi siempre se usa el Perfekt",
+  note:"Aunque el Präteritum también es 'correcto', en conversación los alemanes casi siempre usan el Perfekt para hablar del pasado — excepto con sein, haben y los verbos modales, donde el Präteritum SÍ es lo natural incluso hablando.",
+  examples:[
+    {de:"Ich habe gegessen.", es:"Comí. (así se habla, no 'ich aß')"},
+    {de:"Ich war zu Hause.", es:"Estuve en casa. (aquí sí se usa el Präteritum al hablar)"}
+  ]},
+ {title:"'Weil' vs 'denn' para dar una razón",
+  note:"Ambas significan 'porque' y son igual de correctas, pero cambian el orden del verbo. 'Denn' es más fácil de usar porque no mueve el verbo.",
+  examples:[
+    {de:"Ich bleibe zu Hause, weil ich krank bin.", es:"Me quedo en casa porque estoy enfermo. (el verbo va al final)"},
+    {de:"Ich bleibe zu Hause, denn ich bin krank.", es:"Me quedo en casa porque estoy enfermo. (orden normal, más sencillo)"}
+  ]},
+ {title:"El genitivo se está perdiendo en el habla",
+  note:"La norma 'correcta' pide genitivo, pero en el alemán hablado es muchísimo más común usar 'von' + dativo — no suena mal ni informal en exceso.",
+  examples:[
+    {de:"das Auto meines Vaters", es:"el auto de mi padre (genitivo, más formal/escrito)"},
+    {de:"das Auto von meinem Vater", es:"el auto de mi padre (con 'von', mucho más común al hablar)"}
+  ]},
+ {title:"'wegen dem' vs 'wegen des' — la norma y la realidad",
+  note:"La gramática 'correcta' exige genitivo después de 'wegen', pero en el habla cotidiana casi todo el mundo usa el dativo. No te preocupes si lo escuchas así.",
+  examples:[
+    {de:"wegen des Wetters", es:"por el clima (norma gramatical)"},
+    {de:"wegen dem Wetter", es:"por el clima (lo que realmente se escucha en la calle)"}
+  ]},
+ {title:"'kennen' y 'wissen' no son intercambiables",
+  note:"Ambos se traducen como 'saber/conocer' en español, pero en alemán son muy distintos: 'kennen' es conocer personas o lugares; 'wissen' es saber datos o información.",
+  examples:[
+    {de:"Ich kenne ihn.", es:"Lo conozco (a él, una persona)."},
+    {de:"Ich weiß seinen Namen.", es:"Sé su nombre (un dato)."}
+  ]},
+ {title:"Cuidado con la doble negación",
+  note:"A diferencia del español, en alemán NO se usan dos negaciones para reforzar una idea — dos negativos se anulan entre sí, como en inglés.",
+  examples:[
+    {de:"Ich habe nichts gesehen.", es:"No vi nada. (correcto: una sola negación)"},
+    {de:"Ich habe nichts nicht gesehen. ❌", es:"Incorrecto — nunca se dobla la negación así."}
+  ]},
+ {title:"El adjetivo cambia si va antes o después del sustantivo",
+  note:"Después de 'sein' el adjetivo no lleva terminación; antes del sustantivo sí. Es un error clásico de quien empieza a escribir en alemán.",
+  examples:[
+    {de:"Das Auto ist schnell.", es:"El auto es rápido. (sin terminación)"},
+    {de:"das schnelle Auto", es:"el auto rápido (con terminación, va antes del sustantivo)"}
+  ]},
+ {title:"Pedir permiso: 'dürfen' es lo 'correcto', pero se escucha 'können'",
+  note:"Estrictamente, 'dürfen' es el verbo para pedir permiso. En la práctica, muchísimos hablantes nativos usan 'können' también — ambas se entienden perfecto.",
+  examples:[
+    {de:"Darf ich reinkommen?", es:"¿Puedo entrar? (uso 'correcto' del permiso)"},
+    {de:"Kann ich reinkommen?", es:"¿Puedo entrar? (lo que se escucha muchísimo también)"}
+  ]},
+ {title:"'man' en vez de la voz pasiva",
+  note:"La voz pasiva formal existe, pero al hablar es mucho más natural usar 'man' (como el 'se' impersonal del español).",
+  examples:[
+    {de:"Man macht das so.", es:"Se hace así. (natural, hablado)"},
+    {de:"Es wird so gemacht.", es:"Se hace así. (voz pasiva, más formal/escrita)"}
+  ]},
+ {title:"'ein bisschen' vs 'etwas' para decir 'un poco'",
+  note:"Ambas son correctas y significan lo mismo. 'ein bisschen' es más coloquial y cálido; 'etwas' suena un poco más neutro o formal.",
+  examples:[
+    {de:"Ich habe ein bisschen Hunger.", es:"Tengo un poquito de hambre. (coloquial)"},
+    {de:"Ich habe etwas Hunger.", es:"Tengo algo de hambre. (más neutro)"}
+  ]},
+ {title:"'Sie' formal vs 'du' informal",
+  note:"Usa 'Sie' con desconocidos, en el trabajo o con mayores; 'du' con amigos, familia y en general con gente joven. Si dudas, empieza con 'Sie' — nunca ofende, y muchos alemanes te invitarán a tutearlos si prefieren.",
+  examples:[
+    {de:"Wie heißen Sie?", es:"¿Cómo se llama usted? (formal)"},
+    {de:"Wie heißt du?", es:"¿Cómo te llamas? (informal)"}
+  ]},
+ {title:"Un 'bitte' al final suaviza cualquier frase",
+  note:"Gramaticalmente no es obligatorio, pero agregar 'bitte' al final de una petición la hace sonar mucho más amable — muy usado en el día a día.",
+  examples:[
+    {de:"Komm her.", es:"Ven aquí. (suena a orden)"},
+    {de:"Komm her, bitte.", es:"Ven aquí, por favor. (mismo mensaje, más amable)"}
+  ]},
+ {title:"'doch' también sirve para reforzar, no solo para contradecir",
+  note:"Ya viste que 'doch' contradice una pregunta negativa — pero también se usa para reforzar una idea con la que ya estás de acuerdo, como diciendo 'si es que...'",
+  examples:[
+    {de:"Das ist doch klar!", es:"¡Pero si está clarísimo! (refuerza, no contradice)"},
+    {de:"Das weißt du doch.", es:"Eso ya lo sabes, ¿no? (refuerza algo obvio)"}
+  ]},
+ {title:"Verbos separables: el prefijo se separa o se junta según el tiempo",
+  note:"En presente y pasado simple el prefijo se va al final de la frase; en el Perfekt vuelve a unirse al verbo con 'ge-' en medio.",
+  examples:[
+    {de:"Ich rufe dich an.", es:"Te llamo. (presente: el prefijo 'an' va al final)"},
+    {de:"Ich habe dich angerufen.", es:"Te llamé. (Perfekt: el prefijo se junta de nuevo)"}
+  ]},
+ {title:"'Ich würde sagen...' para opinar con más suavidad",
+  note:"Usar el condicional en vez de afirmar directo es una forma muy natural y cortés de dar tu opinión en alemán, igual que en español decimos 'yo diría que...'",
+  examples:[
+    {de:"Das ist falsch.", es:"Eso está mal. (directo, un poco tajante)"},
+    {de:"Ich würde sagen, das ist falsch.", es:"Yo diría que eso está mal. (más suave y cortés)"}
+  ]},
+ {title:"Contracciones habladas: 'hab'' en vez de 'habe'",
+  note:"En el habla informal, 'ich habe' se acorta muchísimo a 'ich hab''. Se escribe así en mensajes de texto y chats, pero evita usarlo en algo formal o escrito.",
+  examples:[
+    {de:"Ich habe keine Zeit.", es:"No tengo tiempo. (forma escrita/formal)"},
+    {de:"Ich hab' keine Zeit.", es:"No tengo tiempo. (forma hablada/informal)"}
+  ]},
+
+ {title:"'gern' vs 'gerne' — las dos son correctas",
+  note:"Significan exactamente lo mismo y se pueden intercambiar siempre; 'gerne' suena apenas un poco más enfático o cortés, pero nunca es un error usar cualquiera de las dos.",
+  examples:[
+    {de:"Ich helfe dir gern.", es:"Te ayudo con gusto."},
+    {de:"Ich helfe dir gerne.", es:"Te ayudo con mucho gusto. (misma idea, tono casi idéntico)"}
+  ]},
+ {title:"'kein' vs 'nicht' para negar",
+  note:"'kein' niega sustantivos que llevarían 'ein' o ningún artículo; 'nicht' niega verbos, adjetivos o sustantivos con artículo definido. Es uno de los primeros líos típicos al aprender alemán.",
+  examples:[
+    {de:"Ich habe keinen Hunger.", es:"No tengo hambre. (sustantivo sin artículo definido → kein)"},
+    {de:"Das ist nicht mein Auto.", es:"Ese no es mi auto. (niega el verbo/la frase → nicht)"}
+  ]},
+ {title:"'als' vs 'wenn' para decir 'cuando' en pasado",
+  note:"'als' se usa para un momento único y ya pasado; 'wenn' para algo repetido (en cualquier tiempo) o para presente/futuro. Confundirlas es un error clásico de hispanohablantes.",
+  examples:[
+    {de:"Als ich 10 war, zogen wir um.", es:"Cuando tenía 10 años, nos mudamos. (evento único en el pasado)"},
+    {de:"Wenn ich müde bin, trinke ich Kaffee.", es:"Cuando estoy cansado, tomo café. (se repite, no es un solo momento)"}
+  ]},
+ {title:"'seit' vs 'vor' para hablar del tiempo",
+  note:"'seit' indica algo que empezó en el pasado y sigue hasta ahora (desde); 'vor' señala un punto concreto en el pasado (hace). No son intercambiables.",
+  examples:[
+    {de:"Ich wohne seit drei Jahren hier.", es:"Vivo aquí desde hace tres años. (y sigo viviendo aquí)"},
+    {de:"Ich bin vor drei Jahren hergezogen.", es:"Me mudé aquí hace tres años. (un momento puntual del pasado)"}
+  ]},
+ {title:"Los verbos llevan preposiciones fijas que no siempre coinciden con el español",
+  note:"Muchos verbos alemanes exigen una preposición específica que hay que memorizar junto con el verbo, porque casi nunca coincide con la lógica del español.",
+  examples:[
+    {de:"Ich warte auf dich.", es:"Te espero. (literalmente 'espero SOBRE ti' — 'auf' es obligatorio)"},
+    {de:"Ich freue mich auf die Reise.", es:"Tengo ganas del viaje. (también con 'auf', no con 'für')"}
+  ]},
+ {title:"'Ich hätte gern...' para pedir algo con cortesía",
+  note:"El condicional 'hätte gern' es la forma más natural y educada de pedir algo en una tienda, café o restaurante — mucho más amable que usar 'ich will' (quiero), que suena brusco.",
+  examples:[
+    {de:"Ich hätte gern einen Kaffee.", es:"Quisiera un café, por favor."},
+    {de:"Ich will einen Kaffee.", es:"Quiero un café. (correcto, pero suena más brusco/directo)"}
+  ]},
+ {title:"El diminutivo -chen vuelve neutro cualquier sustantivo",
+  note:"Sin importar el género original de la palabra, al agregarle '-chen' (o '-lein') el sustantivo siempre se vuelve 'das' — una regla fija que ayuda mucho a no equivocarse con el artículo.",
+  examples:[
+    {de:"die Katze → das Kätzchen", es:"la gata → la gatita (cambia de 'die' a 'das')"},
+    {de:"der Hund → das Hündchen", es:"el perro → el perrito (cambia de 'der' a 'das')"}
+  ]},
+ {title:"Comparativos irregulares que no siguen la regla",
+  note:"La mayoría de los adjetivos forman el comparativo agregando '-er', pero algunos muy comunes cambian por completo — hay que aprenderlos de memoria, igual que 'bueno-mejor' en español.",
+  examples:[
+    {de:"gut → besser → am besten", es:"bueno → mejor → el mejor (irregular, no 'guter')"},
+    {de:"schnell → schneller → am schnellsten", es:"rápido → más rápido → el más rápido (este sí es regular)"}
+  ]},
+ {title:"'zu + infinitivo' vs 'um...zu + infinitivo'",
+  note:"Ambas estructuras usan el infinitivo con 'zu', pero 'um...zu' añade la idea de propósito ('para hacer algo'), mientras que el 'zu' simple solo completa el sentido de otro verbo.",
+  examples:[
+    {de:"Ich versuche zu schlafen.", es:"Intento dormir. (completa el verbo 'versuchen')"},
+    {de:"Ich gehe früh ins Bett, um auszuschlafen.", es:"Me acuesto temprano para dormir bien. (indica propósito)"}
+  ]},
+ {title:"'erst' y 'nur' no significan lo mismo aunque ambos parezcan 'solo'",
+  note:"'erst' señala que algo pasó más tarde de lo esperado o que 'todavía' está en cierto punto; 'nur' es simplemente 'solamente', sin esa idea de tiempo.",
+  examples:[
+    {de:"Es ist erst acht Uhr.", es:"Apenas son las ocho. (todavía es temprano)"},
+    {de:"Ich habe nur acht Euro.", es:"Solo tengo ocho euros. (cantidad limitada, sin relación con el tiempo)"}
+  ]},
+ {title:"'schon' para tranquilizar a alguien",
+  note:"Además de significar 'ya', 'schon' se usa solo, al final de una frase corta, para dar ánimo o seguridad — un uso muy coloquial y natural.",
+  examples:[
+    {de:"Das wird schon!", es:"¡Todo va a salir bien!"},
+    {de:"Das schaffst du schon.", es:"Tú puedes con esto, ya verás."}
+  ]},
+ {title:"'noch nicht' vs 'nicht mehr'",
+  note:"'noch nicht' es 'todavía no' (algo que aún no pasó); 'nicht mehr' es 'ya no' (algo que dejó de pasar). Se usan constantemente y es fácil confundirlas al empezar.",
+  examples:[
+    {de:"Ich bin noch nicht fertig.", es:"Todavía no estoy listo."},
+    {de:"Ich rauche nicht mehr.", es:"Ya no fumo."}
+  ]},
+ {title:"Orden de la oración: tiempo, modo y lugar",
+  note:"Cuando una frase en alemán tiene varios complementos, el orden natural es TIEMPO (cuándo) → MODO (cómo) → LUGAR (dónde) — memorizar este orden ayuda mucho a sonar más natural.",
+  examples:[
+    {de:"Ich fahre morgen mit dem Bus zur Arbeit.", es:"Mañana voy al trabajo en autobús. (tiempo → modo → lugar)"},
+    {de:"Wir treffen uns heute Abend gemütlich zu Hause.", es:"Nos vemos hoy en la noche, tranquilos, en casa."}
+  ]},
+ {title:"Verbos reflexivos con acusativo o con dativo",
+  note:"La mayoría de los verbos reflexivos usan el pronombre en acusativo, pero si la frase ya tiene un objeto directo, el reflexivo pasa a dativo — un matiz que se nota sobre todo con partes del cuerpo.",
+  examples:[
+    {de:"Ich wasche mich.", es:"Me lavo. (acusativo: 'mich' es el objeto directo)"},
+    {de:"Ich wasche mir die Hände.", es:"Me lavo las manos. (dativo: 'mir', porque 'die Hände' ya es el objeto directo)"}
+  ]},
+ {title:"'brauchen...zu' en frases negativas",
+  note:"Formalmente, 'brauchen' pide un 'zu' antes del infinitivo en frases negativas ('no hace falta que...'); en el habla informal muchos alemanes lo omiten y usan el verbo casi como un modal.",
+  examples:[
+    {de:"Du brauchst nicht zu kommen.", es:"No hace falta que vengas. (forma 'correcta' completa)"},
+    {de:"Du brauchst nicht kommen.", es:"No hace falta que vengas. (muy común en el habla, sin el 'zu')"}
+  ]},
+ {title:"Distintas formas de decir 'tal vez'",
+  note:"'vielleicht' es la más común y neutra; 'eventuell' suena un poco más formal/profesional; 'möglicherweise' es la más formal de las tres, típica de textos o contextos serios.",
+  examples:[
+    {de:"Vielleicht komme ich später.", es:"Tal vez llegue más tarde. (la más usada en el día a día)"},
+    {de:"Eventuell brauchen wir mehr Zeit.", es:"Eventualmente podríamos necesitar más tiempo. (tono algo más formal)"}
+  ]},
+ {title:"'sowohl...als auch' para decir 'tanto...como'",
+  note:"Es la forma más elegante de unir dos ideas con igual peso; en el habla cotidiana mucha gente simplemente usa 'und' (y), que es más simple pero menos formal.",
+  examples:[
+    {de:"Sowohl mein Vater als auch meine Mutter kommen.", es:"Tanto mi padre como mi madre vienen. (más formal/escrito)"},
+    {de:"Mein Vater und meine Mutter kommen.", es:"Mi padre y mi madre vienen. (más simple, uso diario)"}
+  ]},
+ {title:"'mal eben' — dos partículas juntas para reforzar",
+  note:"Combinar 'mal' y 'eben' es muy coloquial y suaviza aún más una petición rápida o improvisada — se escucha muchísimo en el habla diaria, casi imposible de traducir literalmente.",
+  examples:[
+    {de:"Ich geh mal eben einkaufen.", es:"Voy rapidito a hacer las compras."},
+    {de:"Kannst du mal eben helfen?", es:"¿Me puedes ayudar tantito?"}
+  ]},
+ {title:"Cómo suavizar un 'no' directo",
+  note:"En vez de decir 'nein' de forma tajante, es muy común usar 'eher nicht' (mejor no) para sonar menos cortante mientras igual dejas clara tu postura.",
+  examples:[
+    {de:"Nein, das will ich nicht.", es:"No, eso no lo quiero. (directo)"},
+    {de:"Eher nicht, danke.", es:"Mejor no, gracias. (más suave, igual de claro)"}
+  ]},
+ {title:"'Ich denke' vs 'Ich glaube'",
+  note:"Ambas se traducen como 'pienso/creo', pero 'denken' sugiere una reflexión más activa, mientras que 'glauben' es más una suposición o creencia — en la práctica se usan casi indistintamente.",
+  examples:[
+    {de:"Ich denke, das ist richtig.", es:"Pienso que eso es correcto. (idea más razonada)"},
+    {de:"Ich glaube, es regnet gleich.", es:"Creo que va a llover pronto. (más una intuición)"}
+  ]},
+ {title:"El 'es' impersonal obligatorio",
+  note:"A diferencia del español, donde frases como 'llueve' no necesitan sujeto, en alemán siempre hace falta un 'es' sin significado propio, solo para completar la estructura de la oración.",
+  examples:[
+    {de:"Es regnet.", es:"Llueve. (el 'es' es obligatorio, no se puede omitir)"},
+    {de:"Es gibt viele Leute hier.", es:"Hay mucha gente aquí."}
+  ]},
+ {title:"'das' vs 'es' para referirse a algo ya dicho",
+  note:"Cuando retomas una idea completa (no un sustantivo con género específico), lo natural es usar 'das' — 'es' se reserva más para el sujeto impersonal o para sustantivos neutros ya mencionados.",
+  examples:[
+    {de:"Das wusste ich nicht.", es:"Eso no lo sabía. (retoma toda la idea anterior)"},
+    {de:"Das Kind ist müde — es will schlafen.", es:"El niño está cansado — quiere dormir. ('es' porque 'das Kind' es neutro)"}
+  ]},
+ {title:"Comparar igualdad con 'genauso... wie'",
+  note:"Para decir 'tan... como' en alemán se usa 'genauso... wie' (o simplemente 'so... wie') — una estructura muy común que no se parece en nada a la española.",
+  examples:[
+    {de:"Sie ist genauso groß wie ich.", es:"Ella es tan alta como yo."},
+    {de:"Das ist so einfach wie es klingt.", es:"Es tan fácil como suena."}
+  ]},
+ {title:"'immer' + comparativo para 'cada vez más'",
+  note:"Para expresar un cambio progresivo, el alemán simplemente pone 'immer' antes del comparativo — mucho más simple que la construcción española.",
+  examples:[
+    {de:"Es wird immer kälter.", es:"Cada vez hace más frío."},
+    {de:"Mein Deutsch wird immer besser.", es:"Mi alemán va mejorando cada vez más."}
+  ]},
+ {title:"'schon mal' para preguntar si ya viviste algo",
+  note:"Esta combinación es la forma natural de preguntar por experiencias pasadas, equivalente a 'alguna vez' en español — se usa muchísimo en conversación.",
+  examples:[
+    {de:"Warst du schon mal in Berlin?", es:"¿Has estado alguna vez en Berlín?"},
+    {de:"Hast du das schon mal gemacht?", es:"¿Ya has hecho eso alguna vez?"}
+  ]},
+ {title:"'ganz' como intensificador suave",
+  note:"'ganz' antes de un adjetivo significa 'bastante', más suave que 'sehr' (muy) — un matiz útil para no sonar siempre igual de enfático.",
+  examples:[
+    {de:"Das ist ganz gut.", es:"Está bastante bien. (matiz moderado)"},
+    {de:"Das ist sehr gut.", es:"Está muy bien. (más entusiasta/enfático)"}
+  ]},
+ {title:"Respuestas cortas: 'Stimmt' en vez de la frase completa",
+  note:"En vez de repetir 'das stimmt' (eso es cierto) completo, los alemanes muy frecuentemente responden solo con 'Stimmt' — una forma natural y económica de confirmar algo.",
+  examples:[
+    {de:"Stimmt!", es:"¡Cierto! / ¡Tienes razón!"},
+    {de:"Das stimmt nicht ganz.", es:"Eso no es del todo cierto."}
+  ]},
+ {title:"Las contracciones de preposición + artículo son casi obligatorias",
+  note:"Combinaciones como 'im' (in dem), 'zum' (zu dem), 'beim' (bei dem) o 'am' (an dem) se usan casi siempre contraídas en el habla — decir la forma larga suena forzado o poco natural.",
+  examples:[
+    {de:"Ich bin im Büro.", es:"Estoy en la oficina. (casi nadie diría 'in dem Büro')"},
+    {de:"Wir treffen uns beim Bahnhof.", es:"Nos vemos en la estación. (contracción natural de 'bei dem')"}
+  ]},
+ {title:"'auch' cambia de matiz según su posición",
+  note:"'auch' significa 'también', pero su posición en la frase determina exactamente QUÉ palabra está reforzando — un detalle sutil que cambia el énfasis de toda la oración.",
+  examples:[
+    {de:"Ich mag auch Kaffee.", es:"A mí también me gusta el café. (énfasis en 'también me gusta')"},
+    {de:"Ich mag auch Kaffee, nicht nur Tee.", es:"Me gusta también el café, no solo el té. (énfasis en 'café' específicamente)"}
+  ]},
+ {title:"Posesivos en plural siempre llevan '-e'",
+  note:"'mein/dein/sein...' pierden su forma base y agregan '-e' cuando el sustantivo que acompañan está en plural, sin importar el género original del sustantivo.",
+  examples:[
+    {de:"mein Buch → meine Bücher", es:"mi libro → mis libros"},
+    {de:"seine Schwester → seine Schwestern", es:"su hermana → sus hermanas"}
+  ]},
+ {title:"Preguntas sí/no empiezan siempre con el verbo",
+  note:"A diferencia del español, donde basta la entonación, en alemán las preguntas de sí/no mueven el verbo conjugado al inicio absoluto de la frase.",
+  examples:[
+    {de:"Kommst du morgen?", es:"¿Vienes mañana? (verbo primero, sin palabra interrogativa)"},
+    {de:"Bist du müde?", es:"¿Estás cansado?"}
+  ]},
+ {title:"'sauwetter' y otras palabras con 'sau-' como intensificador",
+  note:"En el alemán coloquial, el prefijo 'sau-' (literalmente 'de cerdo') se pega a un sustantivo o adjetivo para intensificarlo muchísimo, en un tono informal y algo exagerado.",
+  examples:[
+    {de:"Was für ein Sauwetter!", es:"¡Qué clima tan horrible!"},
+    {de:"Das war saukalt draußen.", es:"Afuera hacía un frío tremendo."}
+  ]},
+];
+
 
 function getPlural(w){ return PLURALS[wordKey(w)] || null; }
 function getCompound(w){ return COMPOUNDS[wordKey(w)] || null; }
@@ -6116,36 +6618,6 @@ function verbBadgesHtml(v){
   return badges.join("");
 }
 
-function renderVerbList(){
-  const el = document.getElementById("verbList");
-  const q = normalize(verbState.query.trim());
-  const list = q
-    ? VERBS_LIST.filter(v => normalize(v.es).includes(q) || normalize(v.de).includes(q))
-    : VERBS_LIST;
-
-  if(list.length === 0){
-    el.innerHTML = `<div class="vd-empty" style="grid-column:1/-1;">Sin resultados</div>`;
-    return;
-  }
-
-  el.innerHTML = list.map(v => `
-    <button class="verb-chip ${verbState.selected === v.es ? 'active' : ''}" data-es="${v.es}">
-      <div class="vc-es">${v.es}</div>
-      <div class="vc-de">${v.de}</div>
-      <div class="vc-badges">${verbBadgesHtml(v)}</div>
-    </button>
-  `).join("");
-
-  el.querySelectorAll(".verb-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      verbState.selected = chip.dataset.es;
-      renderVerbList();
-      renderVerbDetail();
-      document.getElementById("verbDetail").scrollIntoView({behavior:"smooth", block:"nearest"});
-    });
-  });
-}
-
 function conjRowsHtml(conj){
   const order = [["ich","du","er"],["wir","ihr","sie"]];
   return order.map(col => col.map(p =>
@@ -6153,13 +6625,7 @@ function conjRowsHtml(conj){
   ).join("")).join("");
 }
 
-function renderVerbDetail(){
-  const el = document.getElementById("verbDetail");
-  const v = VERBS_LIST.find(x => x.es === verbState.selected);
-  if(!v){
-    el.innerHTML = `<div class="vd-empty">Toca un verbo para ver su conjugación completa.</div>`;
-    return;
-  }
+function verbDetailHtml(v){
   const key = `verbos::${v.es}`;
   const presente = VERB_CONJUGATIONS[key];
   const pasado = getPreterite(key);
@@ -6169,7 +6635,7 @@ function renderVerbDetail(){
   const deEsc = v.de.replace(/'/g, "\\'");
   const badges = verbBadgesHtml(v);
 
-  el.innerHTML = `
+  return `
     <div class="verb-detail">
       <div class="vd-head">
         <button class="vd-speak" data-text="${deEsc}" data-lang="de-DE">🔊</button>
@@ -6196,11 +6662,45 @@ function renderVerbDetail(){
       ${example ? `<div class="vd-example">${example}</div>` : ''}
     </div>
   `;
+}
 
-  el.querySelector(".vd-speak").addEventListener("click", (e) => {
-    e.stopPropagation();
-    speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+function renderVerbList(){
+  const el = document.getElementById("verbList");
+  const q = normalize(verbState.query.trim());
+  const list = q
+    ? VERBS_LIST.filter(v => normalize(v.es).includes(q) || normalize(v.de).includes(q))
+    : VERBS_LIST;
+
+  if(list.length === 0){
+    el.innerHTML = `<div class="vd-empty" style="grid-column:1/-1;">Sin resultados</div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(v => {
+    const chip = `
+      <button class="verb-chip ${verbState.selected === v.es ? 'active' : ''}" data-es="${v.es}">
+        <div class="vc-es">${v.es}</div>
+        <div class="vc-de">${v.de}</div>
+        <div class="vc-badges">${verbBadgesHtml(v)}</div>
+      </button>`;
+    return verbState.selected === v.es ? chip + verbDetailHtml(v) : chip;
+  }).join("");
+
+  el.querySelectorAll(".verb-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const es = chip.dataset.es;
+      verbState.selected = (verbState.selected === es) ? null : es;
+      renderVerbList();
+    });
   });
+
+  const speakBtn = el.querySelector(".vd-speak");
+  if(speakBtn){
+    speakBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  }
 }
 
 document.getElementById("verbSearchInput").addEventListener("input", (e) => {
@@ -6215,6 +6715,101 @@ document.getElementById("verbSearchClear").addEventListener("click", () => {
   document.getElementById("verbSearchClear").classList.remove("show");
   renderVerbList();
 });
+
+/* ============ Sección de Coloquial: Nativo ============ */
+let coloqState = { query: "", selected: null };
+
+function coloqDetailHtml(c){
+  const deEsc = c.de.replace(/'/g, "\\'");
+  return `
+    <div class="verb-detail">
+      <div class="vd-head">
+        <button class="vd-speak" data-text="${deEsc}" data-lang="de-DE">🔊</button>
+        <div class="vd-es">${c.es}</div>
+        <div class="vd-de">${c.de}</div>
+      </div>
+      <div class="vd-example" style="margin-top:14px;">${c.note}</div>
+      <div class="vd-example">${c.example}</div>
+    </div>
+  `;
+}
+
+function renderColoqList(){
+  const el = document.getElementById("coloqList");
+  const q = normalize(coloqState.query.trim());
+  const list = q
+    ? COLOQUIAL_LIST.filter(c => normalize(c.es).includes(q) || normalize(c.de).includes(q))
+    : COLOQUIAL_LIST;
+
+  if(list.length === 0){
+    el.innerHTML = `<div class="vd-empty" style="grid-column:1/-1;">Sin resultados</div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(c => {
+    const chip = `
+      <button class="verb-chip ${coloqState.selected === c.de ? 'active' : ''}" data-de="${c.de.replace(/"/g,'&quot;')}">
+        <div class="vc-es">${c.de}</div>
+        <div class="vc-de">${c.es}</div>
+      </button>`;
+    return coloqState.selected === c.de ? chip + coloqDetailHtml(c) : chip;
+  }).join("");
+
+  el.querySelectorAll(".verb-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const de = chip.dataset.de;
+      coloqState.selected = (coloqState.selected === de) ? null : de;
+      renderColoqList();
+    });
+  });
+
+  const speakBtn = el.querySelector(".vd-speak");
+  if(speakBtn){
+    speakBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  }
+}
+
+document.getElementById("coloqSearchInput").addEventListener("input", (e) => {
+  coloqState.query = e.target.value;
+  document.getElementById("coloqSearchClear").classList.toggle("show", coloqState.query.trim() !== "");
+  renderColoqList();
+});
+
+document.getElementById("coloqSearchClear").addEventListener("click", () => {
+  coloqState.query = "";
+  document.getElementById("coloqSearchInput").value = "";
+  document.getElementById("coloqSearchClear").classList.remove("show");
+  renderColoqList();
+});
+
+/* ============ Sección de Coloquial: Tips gramaticales ============ */
+function renderTips(){
+  const el = document.getElementById("tipsList");
+  el.innerHTML = GRAMMAR_TIPS.map(t => `
+    <div class="tip-card">
+      <div class="tip-title">${t.title}</div>
+      <div class="tip-note">${t.note}</div>
+      <div class="tip-examples">
+        ${t.examples.map(ex => `
+          <div class="tip-example">
+            <button class="te-speak" data-text="${ex.de.replace(/'/g,"\\'").replace(/"/g,'&quot;')}" data-lang="de-DE">🔊</button>
+            <div class="te-text">
+              <div class="te-de">${ex.de}</div>
+              <div class="te-es">${ex.es}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+
+  el.querySelectorAll(".te-speak").forEach(btn => {
+    btn.addEventListener("click", () => speak(btn.dataset.text, btn.dataset.lang));
+  });
+}
 
 /* ============ Cambio de modo ============ */
 /* ============ Entrenador de género (der/die/das) ============ */
@@ -7240,12 +7835,15 @@ function updateSubText(){
       : state.vocabSub === "listen" ? "Escucha la palabra en alemán y elige su significado"
       : state.vocabSub === "dictado" ? "Escucha la palabra y escribe cómo se dice en alemán"
       : "Elige la traducción correcta al alemán";
-  }else{
+  }else if(state.mode === "verbs"){
     sub.textContent = state.verbSub === "conj" ? "Elige un verbo para ver su conjugación completa"
       : state.verbSub === "tenses" ? "Elige la forma correcta según el tiempo y el pronombre"
       : state.verbSub === "listenv" ? "Escucha el verbo en alemán y elige su significado"
       : state.verbSub === "dictadov" ? "Escucha el verbo y escribe su infinitivo en alemán"
       : "Elige el infinitivo correcto en alemán";
+  }else{
+    sub.textContent = state.coloqSub === "nativo" ? "Palabras y expresiones que usan los alemanes en el día a día"
+      : "Datos para sonar más natural al hablar";
   }
 }
 
@@ -7253,8 +7851,10 @@ function setMode(mode){
   state.mode = mode;
   document.getElementById("tabVocab").classList.toggle("active", mode === "vocab");
   document.getElementById("tabVerbs").classList.toggle("active", mode === "verbs");
+  document.getElementById("tabColoq").classList.toggle("active", mode === "coloq");
   document.getElementById("vocabWrap").style.display = mode === "vocab" ? "" : "none";
   document.getElementById("verbsWrap").style.display = mode === "verbs" ? "" : "none";
+  document.getElementById("coloqWrap").style.display = mode === "coloq" ? "" : "none";
   updateSubText();
 }
 
@@ -7292,8 +7892,22 @@ function setVerbSub(sub){
   updateSubText();
 }
 
+function setColoqSub(sub){
+  state.coloqSub = sub;
+  document.querySelectorAll("#coloqWrap .sub-tab").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.sub === sub);
+  });
+  document.getElementById("nativoSection").style.display = sub === "nativo" ? "" : "none";
+  document.getElementById("tipsSection").style.display = sub === "tips" ? "" : "none";
+  updateSubText();
+}
+
 document.getElementById("tabVocab").addEventListener("click", () => setMode("vocab"));
 document.getElementById("tabVerbs").addEventListener("click", () => setMode("verbs"));
+document.getElementById("tabColoq").addEventListener("click", () => setMode("coloq"));
+document.querySelectorAll("#coloqWrap .sub-tab").forEach(btn => {
+  btn.addEventListener("click", () => setColoqSub(btn.dataset.sub));
+});
 document.querySelectorAll("#vocabWrap .sub-tab").forEach(btn => {
   btn.addEventListener("click", () => setVocabSub(btn.dataset.sub));
 });
@@ -7393,7 +8007,8 @@ function checkAchievements(){
   renderCats();
   renderBoard();
   renderVerbList();
-  renderVerbDetail();
+  renderColoqList();
+  renderTips();
   checkAchievements();
 })();
 </script>
