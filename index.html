@@ -28,6 +28,9 @@
     --amber-shadow:#C9832777;
     --green:#4E9F63;
     --coral:#E85D4E;
+    --art-der:#3D6FE8;
+    --art-die:#E0507A;
+    --art-das:#4E9F63;
     --display: "Fraunces", serif;
     --body: "Work Sans", sans-serif;
     --r-sm: 10px;
@@ -127,6 +130,24 @@
   .back{ background: linear-gradient(160deg, #EFAE52 0%, var(--amber) 55%); color: var(--ink); transform: rotateY(180deg); }
   .card.known .front, .card.known .back{ box-shadow: 0 0 0 2px var(--green), var(--shadow-card); }
 
+  /* Refuerzo visual de género (der/die/das): el REVERSO de la tarjeta (donde está
+     la palabra alemana) se pinta por completo del color de su artículo. El frente
+     (en español) se queda neutro a propósito, para no delatar el género antes de
+     voltear la tarjeta. */
+  .back.art-der{ background: linear-gradient(160deg, #6E93F2 0%, var(--art-der) 55%); }
+  .back.art-die{ background: linear-gradient(160deg, #EC87A2 0%, var(--art-die) 55%); }
+  .back.art-das{ background: linear-gradient(160deg, #77C08A 0%, var(--art-das) 55%); }
+  .back.art-der, .back.art-die, .back.art-das{ color:#fff; }
+  .back.art-der .plural-line, .back.art-die .plural-line, .back.art-das .plural-line,
+  .back.art-der .example, .back.art-die .example, .back.art-das .example,
+  .back.art-der .compound-part, .back.art-die .compound-part, .back.art-das .compound-part,
+  .back.art-der .compound-plus, .back.art-die .compound-plus, .back.art-das .compound-plus{
+    color: rgba(255,255,255,0.85);
+  }
+  .back.art-der .compound-part, .back.art-die .compound-part, .back.art-das .compound-part{
+    background: rgba(255,255,255,0.2);
+  }
+
   .icon-wrap{ width: 68px; height: 68px; }
   .icon-wrap svg{ width:100%; height:100%; }
   .es-caption{ font-size:10.5px; color: rgba(20,20,20,0.32); margin-top: 6px; font-weight:500; letter-spacing:0.01em; }
@@ -224,14 +245,22 @@
 
   .article-row{ display:flex; gap:10px; margin-top:20px; }
   .article-btn{
-    flex:1; padding: 14px 6px; border-radius: var(--r-md); border: 2px solid rgba(20,20,20,0.15);
-    background: rgba(20,20,20,0.04); color: var(--ink); font-family: var(--display); font-size:18px;
+    position:relative; flex:1; padding: 14px 6px; border-radius: var(--r-md); border: 2px solid transparent;
+    color:#fff; font-family: var(--display); font-size:18px;
     font-weight:700; font-style:italic; cursor:pointer; transition: all .15s ease;
   }
+  .article-btn.art-der{ background: var(--art-der); }
+  .article-btn.art-die{ background: var(--art-die); }
+  .article-btn.art-das{ background: var(--art-das); }
   .article-btn:not([disabled]):active{ transform: scale(0.95); }
-  .article-btn.correct{ background: var(--green); border-color: var(--green); color:#F3F9F1; }
-  .article-btn.wrong{ background: var(--coral); border-color: var(--coral); color:#FFF; }
-  .article-btn[disabled]{ opacity:0.6; }
+  .article-btn.correct{ box-shadow: 0 0 0 3px var(--green), var(--shadow-card); }
+  .article-btn.wrong{ box-shadow: 0 0 0 3px var(--coral), var(--shadow-card); opacity:0.75; }
+  .article-btn[disabled]{ cursor:default; }
+  .art-mark{
+    position:absolute; top:-8px; right:-8px; font-size:15px; background:#fff; border-radius:50%;
+    width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
 
   .exam-options{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px; }
   .exam-option{
@@ -240,6 +269,9 @@
     font-weight:600; font-style:italic; cursor:pointer; transition: all .15s ease;
   }
   .exam-option:not([disabled]):active{ transform: scale(0.96); }
+  .exam-option.art-der{ border-left: 5px solid var(--art-der); }
+  .exam-option.art-die{ border-left: 5px solid var(--art-die); }
+  .exam-option.art-das{ border-left: 5px solid var(--art-das); }
   .exam-option.correct{ background: var(--green); border-color: var(--green); color:#F3F9F1; }
   .exam-option.wrong{ background: var(--coral); border-color: var(--coral); color:#FFF; }
   .exam-option[disabled]{ opacity:0.6; }
@@ -3893,6 +3925,18 @@ function haptic(pattern){
   try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
 }
 
+/* Detecta der/die/das al inicio de la palabra alemana, para el refuerzo visual
+   por color de género. Devuelve "" si la palabra no lleva artículo (colores,
+   números, expresiones de tiempo, etc.) — los verbos tampoco llevan artículo,
+   así que nunca reciben esta clase. */
+function articleClass(deWord){
+  const first = (deWord || "").trim().split(" ")[0];
+  if(first === "der") return "art-der";
+  if(first === "die") return "art-die";
+  if(first === "das") return "art-das";
+  return "";
+}
+
 /* ---- Frases de ejemplo (generadas por plantilla, no guardadas por palabra) ---- */
 function toAccusative(de){
   // Único cambio de declinación necesario con artículo definido: der -> den (masculino singular)
@@ -6488,6 +6532,7 @@ function renderBoard(){
     const compoundHtml = compound
       ? `<div class="compound-wrap">${compound.map(([part, mean]) => `<span class="compound-part"><b>${part}</b>${mean}</span>`).join('<span class="compound-plus">+</span>')}</div>`
       : '';
+    const artCls = articleClass(w.de);
 
     cell.innerHTML = `
       <div class="card ${isFlipped ? 'flipped' : ''} ${isKnown ? 'known' : ''}" data-key="${key}">
@@ -6497,7 +6542,7 @@ function renderBoard(){
           <div class="es-caption">${w.es}</div>
           ${catTag}
         </div>
-        <div class="face back">
+        <div class="face back ${artCls}">
           <button class="speak-btn" data-text="${deEsc}" data-lang="de-DE">🔊</button>
           <div class="word-label">Deutsch</div>
           <div class="word de">${w.de}</div>
@@ -6883,9 +6928,9 @@ function renderGenderCard(){
       <div class="gc-es">${w.es}</div>
       <div class="gc-noun">${noun}</div>
       <div class="article-row">
-        <button class="article-btn" data-art="der">der</button>
-        <button class="article-btn" data-art="die">die</button>
-        <button class="article-btn" data-art="das">das</button>
+        <button class="article-btn art-der" data-art="der">der</button>
+        <button class="article-btn art-die" data-art="die">die</button>
+        <button class="article-btn art-das" data-art="das">das</button>
       </div>
     </div>`;
 
@@ -6910,8 +6955,13 @@ async function handleGenderAnswer(chosen, correctArt){
 
   document.querySelectorAll(".article-btn").forEach(btn => {
     btn.disabled = true;
-    if(btn.dataset.art === correctArt) btn.classList.add("correct");
-    else if(btn.dataset.art === chosen) btn.classList.add("wrong");
+    if(btn.dataset.art === correctArt){
+      btn.classList.add("correct");
+      btn.insertAdjacentHTML("beforeend", '<span class="art-mark">✅</span>');
+    }else if(btn.dataset.art === chosen){
+      btn.classList.add("wrong");
+      btn.insertAdjacentHTML("beforeend", '<span class="art-mark">❌</span>');
+    }
   });
   renderGenderScore();
 
@@ -7293,7 +7343,7 @@ function renderExamCard(){
       <div class="icon-wrap"><svg viewBox="0 0 100 100">${iconSvg}</svg></div>
       <div class="gc-es">${w.es}</div>
       <div class="exam-options">
-        ${options.map(o => `<button class="exam-option" data-de="${o.de.replace(/"/g,'&quot;')}">${o.de}</button>`).join("")}
+        ${options.map(o => `<button class="exam-option ${articleClass(o.de)}" data-de="${o.de.replace(/"/g,'&quot;')}">${o.de}</button>`).join("")}
       </div>
     </div>`;
 
