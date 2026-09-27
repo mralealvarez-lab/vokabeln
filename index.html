@@ -7493,7 +7493,15 @@ function handleTensesAnswer(chosen, q){
     <div class="plural-line">${resultLine}</div>
     <div class="example">${example}</div>
   `;
-  document.getElementById("tensesCard").querySelector(".game-card").appendChild(info);
+  const gameCard = document.getElementById("tensesCard").querySelector(".game-card");
+  gameCard.appendChild(info);
+  gameCard.insertAdjacentHTML("beforeend", verbDetailHtml(q.v));
+  gameCard.querySelectorAll(".vd-speak").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  });
 
   const nextBtn = document.createElement("button");
   nextBtn.className = "game-next";
@@ -7536,14 +7544,13 @@ function renderListenVSummary(el){
 
   const wrongHtml = wrongOnes.map(h => {
     const v = VERBS_LIST.find(x => x.es === h.es);
-    const example = VERB_EXAMPLES[`verbos::${h.es}`] || "";
     return `
       <div class="exam-review-item wrong">
         <div class="eri-head"><span>${v.de}</span><span class="eri-mark">❌</span></div>
         <div class="eri-chosen">Tu respuesta: ${h.chosen}</div>
         <div class="eri-correct-answer">Correcto: ${v.es}</div>
-        ${example ? `<div class="eri-example">${example}</div>` : ''}
-      </div>`;
+      </div>
+      ${verbDetailHtml(v)}`;
   }).join("");
 
   const rightHtml = rightOnes.map(h => {
@@ -7558,6 +7565,13 @@ function renderListenVSummary(el){
       ${wrongOnes.length ? `<div class="exam-review"><div class="tense-title">Para repasar</div>${wrongHtml}</div>` : ''}
       ${rightOnes.length ? `<div class="exam-review"><div class="tense-title">Correctos</div>${rightHtml}</div>` : ''}
     </div>`;
+
+  el.querySelectorAll(".vd-speak").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  });
 }
 
 function renderListenVCard(){
@@ -7665,14 +7679,14 @@ function renderExamVSummary(el){
   const rightOnes = examVState.history.filter(h => h.isCorrect);
 
   const wrongHtml = wrongOnes.map(h => {
-    const example = VERB_EXAMPLES[`verbos::${h.es}`] || "";
+    const v = VERBS_LIST.find(x => x.es === h.es);
     return `
       <div class="exam-review-item wrong">
         <div class="eri-head"><span>${h.es}</span><span class="eri-mark">❌</span></div>
         <div class="eri-chosen">Tu respuesta: ${h.chosen}</div>
         <div class="eri-correct-answer">Correcto: ${h.correctDe}</div>
-        ${example ? `<div class="eri-example">${example}</div>` : ''}
-      </div>`;
+      </div>
+      ${v ? verbDetailHtml(v) : ''}`;
   }).join("");
 
   const rightHtml = rightOnes.map(h =>
@@ -7686,6 +7700,13 @@ function renderExamVSummary(el){
       ${wrongOnes.length ? `<div class="exam-review"><div class="tense-title">Para repasar</div>${wrongHtml}</div>` : ''}
       ${rightOnes.length ? `<div class="exam-review"><div class="tense-title">Correctos</div>${rightHtml}</div>` : ''}
     </div>`;
+
+  el.querySelectorAll(".vd-speak").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  });
 }
 
 function renderExamVCard(){
@@ -7780,14 +7801,13 @@ function renderDictadoVSummary(el){
 
   const wrongHtml = wrongOnes.map(h => {
     const v = VERBS_LIST.find(x => x.es === h.es);
-    const example = VERB_EXAMPLES[`verbos::${h.es}`] || "";
     return `
       <div class="exam-review-item wrong">
         <div class="eri-head"><span>${v.es}</span><span class="eri-mark">❌</span></div>
         <div class="eri-chosen">Escribiste: ${h.chosen || "(vacío)"}</div>
         <div class="eri-correct-answer">Correcto: ${v.de}</div>
-        ${example ? `<div class="eri-example">${example}</div>` : ''}
-      </div>`;
+      </div>
+      ${verbDetailHtml(v)}`;
   }).join("");
 
   const rightHtml = rightOnes.map(h => {
@@ -7802,6 +7822,13 @@ function renderDictadoVSummary(el){
       ${wrongOnes.length ? `<div class="exam-review"><div class="tense-title">Para repasar</div>${wrongHtml}</div>` : ''}
       ${rightOnes.length ? `<div class="exam-review"><div class="tense-title">Correctos</div>${rightHtml}</div>` : ''}
     </div>`;
+
+  el.querySelectorAll(".vd-speak").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  });
 }
 
 function renderDictadoVCard(){
