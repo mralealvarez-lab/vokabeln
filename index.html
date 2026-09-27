@@ -6709,6 +6709,19 @@ function verbDetailHtml(v){
   `;
 }
 
+/* Inserta la ficha completa de conjugación (verbDetailHtml) dentro de una
+   tarjeta de juego y conecta su botón de audio. Reutilizado por los 4 juegos
+   de la pestaña Verbos para dar feedback inmediato con toda la declinación. */
+function appendVerbDetail(gameCard, v){
+  gameCard.insertAdjacentHTML("beforeend", verbDetailHtml(v));
+  gameCard.querySelectorAll(".vd-speak").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  });
+}
+
 function renderVerbList(){
   const el = document.getElementById("verbList");
   const q = normalize(verbState.query.trim());
@@ -7495,13 +7508,7 @@ function handleTensesAnswer(chosen, q){
   `;
   const gameCard = document.getElementById("tensesCard").querySelector(".game-card");
   gameCard.appendChild(info);
-  gameCard.insertAdjacentHTML("beforeend", verbDetailHtml(q.v));
-  gameCard.querySelectorAll(".vd-speak").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
-    });
-  });
+  appendVerbDetail(gameCard, q.v);
 
   const nextBtn = document.createElement("button");
   nextBtn.className = "game-next";
@@ -7633,7 +7640,9 @@ function handleListenVAnswer(es, chosen, correctEs){
     <div class="plural-line">${resultLine}</div>
     ${example ? `<div class="example">${example}</div>` : ''}
   `;
-  document.getElementById("listenVCard").querySelector(".game-card").appendChild(info);
+  const gameCard = document.getElementById("listenVCard").querySelector(".game-card");
+  gameCard.appendChild(info);
+  appendVerbDetail(gameCard, v);
 
   const nextBtn = document.createElement("button");
   nextBtn.className = "game-next";
@@ -7758,7 +7767,9 @@ function handleExamVAnswer(es, chosen, correctDe){
     <div class="plural-line">${resultLine}</div>
     ${example ? `<div class="example">${example}</div>` : ''}
   `;
-  document.getElementById("examVCard").querySelector(".game-card").appendChild(info);
+  const gameCard = document.getElementById("examVCard").querySelector(".game-card");
+  gameCard.appendChild(info);
+  appendVerbDetail(gameCard, VERBS_LIST.find(x => x.es === es));
 
   const nextBtn = document.createElement("button");
   nextBtn.className = "game-next";
@@ -7888,7 +7899,9 @@ function handleDictadoVAnswer(es, rawAnswer){
     <div class="plural-line">${resultLine}</div>
     ${example ? `<div class="example">${example}</div>` : ''}
   `;
-  document.getElementById("dictadoVCard").querySelector(".game-card").appendChild(info);
+  const gameCard = document.getElementById("dictadoVCard").querySelector(".game-card");
+  gameCard.appendChild(info);
+  appendVerbDetail(gameCard, v);
 
   const nextBtn = document.createElement("button");
   nextBtn.className = "game-next";
