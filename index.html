@@ -577,6 +577,7 @@
   <div id="coloqWrap" style="display:none;">
     <div class="sub-tabs">
       <button class="sub-tab active" data-sub="nativo">🗣️ Nativo</button>
+      <button class="sub-tab" data-sub="frases">📝 Frases</button>
       <button class="sub-tab" data-sub="tips">💡 Tips</button>
     </div>
 
@@ -585,10 +586,29 @@
         <input class="search-input" id="coloqSearchInput" type="text" placeholder="Buscar palabra o expresión…" autocomplete="off">
         <button class="search-clear" id="coloqSearchClear">✕</button>
       </div>
+      <div class="sort-row">
+        <span class="sort-label">Orden:</span>
+        <button class="sort-pill active" data-sort="default">Original</button>
+        <button class="sort-pill" data-sort="es">A-Z (español)</button>
+        <button class="sort-pill" data-sort="de">A-Z (alemán)</button>
+      </div>
       <div class="verb-list" id="coloqList"></div>
     </div>
 
+    <div id="frasesSection" style="display:none;">
+      <div class="search-wrap">
+        <input class="search-input" id="frasesSearchInput" type="text" placeholder="Buscar frase o situación…" autocomplete="off">
+        <button class="search-clear" id="frasesSearchClear">✕</button>
+      </div>
+      <div class="verb-list" id="frasesList"></div>
+    </div>
+
     <div id="tipsSection" style="display:none;">
+      <div class="search-wrap">
+        <input class="search-input" id="tipsSearchInput" type="text" placeholder="Buscar tip…" autocomplete="off">
+        <button class="search-clear" id="tipsSearchClear">✕</button>
+      </div>
+      <div class="cats" id="tipsCats"></div>
       <div id="tipsList"></div>
     </div>
   </div>
@@ -6955,309 +6975,1321 @@ const COLOQUIAL_LIST = [
  {de:"auf die Schnelle", es:"rapidito / al vuelo",
   note:"Para algo hecho con prisa, sin mucha preparación — muy natural en conversaciones sobre comida, planes o tareas improvisadas.",
   example:"Ich mach uns auf die Schnelle was zu essen. (Te preparo algo de comer rapidito.)"},
+
+ {de:"tja", es:"bueno... / pues...",
+  note:"Interjección típica para iniciar una frase con resignación, sorpresa o cuando no hay mucho más que decir.",
+  example:"Tja, so ist das Leben. (Bueno, así es la vida.)"},
+ {de:"irgendwie", es:"como que / de alguna manera",
+  note:"Muletilla constante en el habla cotidiana para suavizar una idea o cuando cuesta explicarse con precisión.",
+  example:"Das ist irgendwie komisch. (Eso es como que raro.)"},
+ {de:"sozusagen", es:"por así decirlo",
+  note:"Se usa para matizar una expresión poco literal o metafórica.",
+  example:"Er ist sozusagen mein Chef. (Él es, por así decirlo, mi jefe.)"},
+ {de:"quasi", es:"prácticamente / como quien dice",
+  note:"Préstamo del latín totalmente integrado al habla informal alemana.",
+  example:"Ich bin quasi fertig. (Prácticamente ya terminé.)"},
+ {de:"echt", es:"de verdad / en serio",
+  note:"Funciona como pregunta de sorpresa (\'Echt?\' = \'¿En serio?\') o como intensificador (\'echt gut\' = de verdad bueno).",
+  example:"Echt? Das wusste ich nicht! (¿En serio? ¡No lo sabía!)"},
+ {de:"voll", es:"súper / bien",
+  note:"Intensificador muy coloquial y juvenil, equivalente a \'súper\' o \'bien\' antes de un adjetivo.",
+  example:"Das ist voll cool! (¡Eso es súper genial!)"},
+ {de:"total", es:"totalmente",
+  note:"Otro intensificador muy común en el habla diaria, se pega directo antes del adjetivo.",
+  example:"Ich bin total müde. (Estoy totalmente cansado.)"},
+ {de:"ehrlich", es:"sinceramente / en serio",
+  note:"Como pregunta corta (\'Ehrlich?\') pide confirmar que algo es cierto.",
+  example:"Ehrlich, das war nicht meine Absicht. (Sinceramente, no fue mi intención.)"},
+ {de:"Alter Schwede!", es:"¡vaya! / ¡cielos!",
+  note:"Interjección de sorpresa, sin relación literal con Suecia — es solo una expresión fija curiosa.",
+  example:"Alter Schwede, das ist schnell! (¡Vaya, qué rápido!)"},
+ {de:"Mann!", es:"¡hombre! / ¡uf!",
+  note:"Interjección de exasperación o énfasis, no tiene que ver con el género de quien la dice ni de quien escucha.",
+  example:"Mann, das dauert aber lange! (¡Uf, esto sí que tarda!)"},
+ {de:"cool", es:"genial",
+  note:"Préstamo del inglés completamente integrado al alemán cotidiano, usado por todas las edades.",
+  example:"Das Konzert war cool. (El concierto estuvo genial.)"},
+ {de:"nice", es:"qué bien / chido",
+  note:"Otro préstamo inglés muy popular entre hablantes jóvenes para aprobar algo.",
+  example:"Nice, das klappt! (¡Qué bien, funciona!)"},
+ {de:"läuft", es:"va bien / fluye",
+  note:"Del verbo \'laufen\' (correr/funcionar); como expresión suelta significa que todo va sobre ruedas.",
+  example:"Läuft bei dir! (¡Te va muy bien!)"},
+ {de:"Bro", es:"bro / parce",
+  note:"Préstamo inglés usado igual que \'Digga\' entre amigos cercanos.",
+  example:"Alles klar, Bro? (¿Todo bien, bro?)"},
+ {de:"cringe", es:"vergonzoso / pena ajena",
+  note:"Anglicismo adoptado masivamente por la generación joven alemana para algo incómodo de ver.",
+  example:"Das war so cringe! (¡Eso dio tanta pena ajena!)"},
+ {de:"Was geht?", es:"¿qué onda?",
+  note:"Saludo informal entre amigos, equivalente directo a \'qué onda\' o \'qué tal\'.",
+  example:"Was geht, alles klar? (¿Qué onda, todo bien?)"},
+ {de:"Alles cool?", es:"¿todo bien?",
+  note:"Forma relajada de preguntar cómo está alguien, mezcla alemán con el préstamo inglés \'cool\'.",
+  example:"Hey, alles cool bei dir? (Oye, ¿todo bien contigo?)"},
+ {de:"die Katze im Sack kaufen", es:"comprar a ciegas",
+  note:"Literalmente \'comprar el gato en el saco\' — arriesgarte a algo sin verlo bien primero.",
+  example:"Kauf nicht die Katze im Sack! (¡No compres a ciegas!)"},
+ {de:"ins Fettnäpfchen treten", es:"meter la pata",
+  note:"Literalmente \'pisar la ollita de grasa\' — decir o hacer algo socialmente incómodo sin querer.",
+  example:"Ich bin voll ins Fettnäpfchen getreten. (Metí la pata por completo.)"},
+ {de:"da liegt der Hund begraben", es:"ahí está el problema",
+  note:"Literalmente \'ahí está enterrado el perro\' — señala la verdadera causa de un problema.",
+  example:"Da liegt der Hund begraben! (¡Ahí está el verdadero problema!)"},
+ {de:"die Nase voll haben", es:"estar harto",
+  note:"Literalmente \'tener la nariz llena\' — una de las formas más comunes de decir que ya no aguantas algo.",
+  example:"Ich habe die Nase voll! (¡Estoy harto!)"},
+ {de:"Tomaten auf den Augen haben", es:"no ver lo obvio",
+  note:"Literalmente \'tener tomates en los ojos\' — cuando alguien no se da cuenta de algo evidente.",
+  example:"Hast du Tomaten auf den Augen? (¿Qué, no ves lo obvio?)"},
+ {de:"jemandem die Daumen drücken", es:"cruzar los dedos por alguien",
+  note:"Literalmente \'apretar los pulgares\' — el gesto alemán de buena suerte, distinto al de cruzar dedos.",
+  example:"Ich drück dir die Daumen! (¡Te deseo mucha suerte!)"},
+ {de:"da steppt der Bär", es:"ahí está la fiesta",
+  note:"Literalmente \'ahí baila el oso\' — describe un lugar con mucho ambiente o diversión.",
+  example:"Auf der Party steppt der Bär! (¡En la fiesta está buenísimo el ambiente!)"},
+ {de:"Schwein haben", es:"tener suerte",
+  note:"Literalmente \'tener cerdo\' — el cerdo es símbolo tradicional de buena suerte en Alemania.",
+  example:"Da hast du Schwein gehabt! (¡Ahí sí tuviste suerte!)"},
+ {de:"das ist nicht mein Bier", es:"eso no es asunto mío",
+  note:"Literalmente \'esa no es mi cerveza\' — para dejar claro que algo no te compete.",
+  example:"Das ist nicht mein Bier. (Eso no es asunto mío.)"},
+ {de:"jemandem auf den Keks gehen", es:"sacar de quicio a alguien",
+  note:"Literalmente \'ir sobre la galleta de alguien\' — fastidiar o molestar insistentemente.",
+  example:"Du gehst mir auf den Keks! (¡Me estás sacando de quicio!)"},
+ {de:"die Kirche im Dorf lassen", es:"no exagerar",
+  note:"Literalmente \'dejar la iglesia en el pueblo\' — mantener las proporciones de algo, no magnificarlo.",
+  example:"Lass die Kirche im Dorf! (¡No exageres!)"},
+ {de:"Hummeln im Hintern haben", es:"no poder quedarse quieto",
+  note:"Literalmente \'tener abejorros en el trasero\' — para alguien muy inquieto o impaciente.",
+  example:"Du hast wohl Hummeln im Hintern. (Parece que no puedes quedarte quieto.)"},
+ {de:"aus einer Mücke einen Elefanten machen", es:"hacer una montaña de un grano de arena",
+  note:"Literalmente \'hacer un elefante de un mosquito\' — exagerar un problema pequeño.",
+  example:"Mach keinen Elefanten aus der Mücke! (¡No exageres las cosas!)"},
+ {de:"da haben wir den Salat", es:"ahí tienes el lío",
+  note:"Literalmente \'ahí tenemos la ensalada\' — usado cuando algo sale mal tras ignorar una advertencia.",
+  example:"Na, da haben wir den Salat! (¡Bueno, ahí tienes el lío!)"},
+ {de:"Butter bei die Fische", es:"al grano / vamos al punto",
+  note:"Expresión del norte de Alemania para pedir que alguien deje de rodeos y sea directo.",
+  example:"Komm, Butter bei die Fische! (¡Vamos, al grano!)"},
+ {de:"Ich glaub, ich spinne", es:"no puedo creerlo",
+  note:"Literalmente \'creo que estoy hilando/loco\' — expresión de incredulidad total.",
+  example:"Ich glaub, ich spinne! Das gibt\'s doch nicht! (¡No puedo creerlo! ¡Esto no puede ser!)"},
+ {de:"das A und O", es:"lo más importante / lo esencial",
+  note:"Literalmente \'la A y la O\' — se refiere a lo fundamental de algo, como el alfa y omega.",
+  example:"Übung ist das A und O. (La práctica es lo esencial.)"},
+ {de:"unter aller Kanone", es:"pésimo",
+  note:"Literalmente \'bajo todo cañón\' — para calificar algo de muy mala calidad.",
+  example:"Der Film war unter aller Kanone. (La película estuvo pésima.)"},
+ {de:"die Flinte ins Korn werfen", es:"tirar la toalla",
+  note:"Literalmente \'tirar la escopeta al trigal\' — rendirse ante una dificultad.",
+  example:"Wirf nicht gleich die Flinte ins Korn! (¡No tires la toalla tan rápido!)"},
+ {de:"verschlimmbessern", es:"empeorar algo al intentar mejorarlo",
+  note:"Palabra inventada mezclando \'verschlimmern\' (empeorar) y \'verbessern\' (mejorar) — súper usada y sin equivalente directo.",
+  example:"Ich hab\'s nur verschlimmbessert. (Solo logré empeorarlo al intentar arreglarlo.)"},
+ {de:"Erklärungsnot", es:"apuro por tener que explicar algo",
+  note:"Sustantivo compuesto que describe ese momento incómodo cuando tienes que justificar algo difícil de explicar.",
+  example:"Er war in großer Erklärungsnot. (Estaba en un gran apuro para explicarse.)"},
+ {de:"Fremdschämen", es:"vergüenza ajena",
+  note:"Verbo/sustantivo muy usado para esa pena que sientes por el error vergonzoso de otra persona.",
+  example:"Ich musste richtig fremdschämen. (Sentí una vergüenza ajena tremenda.)"},
+ {de:"Zugzwang", es:"estar obligado a actuar",
+  note:"Viene del ajedrez (estar forzado a mover), pero se usa cotidianamente para cualquier situación sin más opción que actuar.",
+  example:"Jetzt bin ich im Zugzwang. (Ahora estoy obligado a actuar.)"},
+ {de:"Futterneid", es:"envidia de lo que otro está comiendo",
+  note:"Literalmente \'envidia de comida\' — esa sensación al ver el plato ajeno y desear haber pedido eso.",
+  example:"Pures Futterneid! (¡Pura envidia de tu plato!)"},
+ {de:"der innere Schweinehund", es:"la pereza interior",
+  note:"Literalmente \'el perro-cerdo interior\' — esa voz interna que te frena de hacer ejercicio o cualquier cosa que cuesta esfuerzo.",
+  example:"Ich muss meinen inneren Schweinehund überwinden. (Tengo que vencer mi pereza interior.)"},
+ {de:"Sitzfleisch", es:"paciencia para quedarse sentado",
+  note:"Literalmente \'carne de sentarse\' — la capacidad de aguantar sentado haciendo algo largo y tedioso.",
+  example:"Dafür brauchst du Sitzfleisch. (Para eso necesitas mucha paciencia y aguante.)"},
+ {de:"Drachenfutter", es:"regalo de disculpa",
+  note:"Literalmente \'comida de dragón\' — un regalo (flores, chocolates) para calmar a la pareja tras llegar tarde o un enojo.",
+  example:"Ich bring dir Drachenfutter mit. (Te traigo un regalito de disculpa.)"},
+ {de:"Dreikäsehoch", es:"pequeñajo / mocoso",
+  note:"Literalmente \'alto como tres quesos\' — forma cariñosa de referirse a un niño pequeño.",
+  example:"Der Dreikäsehoch ist schon so frech! (¡El pequeñajo ya es tan atrevido!)"},
+ {de:"Warmduscher", es:"persona blandengue",
+  note:"Literalmente \'el que se ducha con agua tibia\' — insulto cariñoso y gracioso para alguien poco valiente o quejumbroso.",
+  example:"Sei kein Warmduscher! (¡No seas tan blandengue!)"},
+ {de:"null acht fünfzehn", es:"del montón / estándar",
+  note:"Literalmente \'08/15\', el nombre de un fusil estándar de la Primera Guerra Mundial — hoy significa algo muy común, sin nada especial.",
+  example:"Der Film war null acht fünfzehn. (La película fue del montón.)"},
+ {de:"Energiebündel", es:"persona llena de energía",
+  note:"Literalmente \'paquete de energía\' — para describir a alguien muy activo o enérgico.",
+  example:"Sie ist ein richtiges Energiebündel. (Ella es un verdadero paquete de energía.)"},
+ {de:"die Schnauze voll haben", es:"estar hasta la coronilla",
+  note:"Versión más fuerte e informal de \'die Nase voll haben\' — \'Schnauze\' es el hocico de un animal, así que suena más tosco.",
+  example:"Ich hab die Schnauze voll! (¡Estoy hasta la coronilla!)"},
+ {de:"Ich krieg die Krise", es:"me va a dar algo",
+  note:"Expresión de frustración o desesperación extrema, muy usada en el habla cotidiana.",
+  example:"Ich krieg die Krise mit dir! (¡Me vas a hacer explotar!)"},
+ {de:"Kohle", es:"pasta / plata",
+  note:"Literalmente \'carbón\' — la jerga más común para decir dinero.",
+  example:"Ich hab keine Kohle mehr. (Ya no tengo plata.)"},
+ {de:"pleite sein", es:"estar en bancarrota / sin un peso",
+  note:"Expresión coloquial estándar para no tener dinero en absoluto.",
+  example:"Ich bin total pleite. (Estoy totalmente sin un peso.)"},
+ {de:"abzocken", es:"estafar / cobrar de más",
+  note:"Verbo muy usado cuando sientes que te cobraron injustamente caro.",
+  example:"Die haben mich total abgezockt. (Me estafaron por completo.)"},
+ {de:"schnorren", es:"gorronear",
+  note:"Pedir prestado (dinero, cigarros, etc.) sin intención real de devolverlo — con un matiz humorístico de reproche.",
+  example:"Hör auf zu schnorren! (¡Deja de andar gorroneando!)"},
+ {de:"Zoff", es:"bronca / pelea",
+  note:"Sustantivo coloquial para un conflicto o discusión, especialmente en relaciones o familia.",
+  example:"Wir hatten gestern Zoff. (Ayer tuvimos una bronca.)"},
+ {de:"abgefahren", es:"alucinante / una locura",
+  note:"Adjetivo coloquial para algo impresionante o fuera de lo común, bueno o malo.",
+  example:"Das war echt abgefahren! (¡Eso fue una verdadera locura!)"},
+ {de:"durchdrehen", es:"volverse loco / perder la cabeza",
+  note:"Verbo coloquial para cuando alguien pierde el control por estrés o emoción.",
+  example:"Ich dreh gleich durch! (¡Voy a perder la cabeza!)"},
+ {de:"Schnapsidee", es:"idea descabellada",
+  note:"Literalmente \'idea de aguardiente\' — una idea mala que parece buena solo en el momento, como tras haber bebido.",
+  example:"Das war eine echte Schnapsidee. (Esa fue una idea realmente descabellada.)"},
+ {de:"Kopfkino", es:"darle vueltas en la cabeza",
+  note:"Literalmente \'cine de cabeza\' — imaginarte escenarios (normalmente negativos) una y otra vez.",
+  example:"Mein Kopfkino läuft wieder. (Mi cabeza está otra vez dándole vueltas a todo.)"},
+ {de:"null Komma nichts", es:"en un dos por tres",
+  note:"Literalmente \'cero coma nada\' — para algo que pasa casi instantáneamente.",
+  example:"Das war null Komma nichts fertig. (Eso quedó listo en un dos por tres.)"},
+ {de:"jemanden verarschen", es:"tomarle el pelo a alguien",
+  note:"Muy coloquial (de \'Arsch\' = trasero, pero de uso cotidiano sin ser grosero), significa engañar o bromear con alguien.",
+  example:"Verarsch mich nicht! (¡No me tomes el pelo!)"},
+ {de:"abhauen", es:"largarse",
+  note:"Verbo informal para irse rápidamente de un lugar, a veces escapando de algo.",
+  example:"Ich muss jetzt abhauen. (Me tengo que largar ya.)"},
+ {de:"verpeilt sein", es:"estar despistado",
+  note:"Jerga joven para describir a alguien distraído o que siempre pierde el hilo de las cosas.",
+  example:"Ich bin heute total verpeilt. (Hoy estoy súper despistado.)"},
+ {de:"Servus", es:"hola / chao",
+  note:"Saludo informal típico del sur de Alemania y Austria, funciona tanto para saludar como para despedirse.",
+  example:"Servus! Wie geht\'s? (¡Hola! ¿Cómo estás?)"},
+ {de:"Tschö", es:"chaíto",
+  note:"Variante informal y regional (oeste de Alemania) de \'tschüss\', aún más relajada.",
+  example:"Tschö, bis morgen! (¡Chaíto, hasta mañana!)"},
+ {de:"Ciao", es:"chao",
+  note:"Préstamo del italiano, muy usado como despedida informal en el alemán cotidiano.",
+  example:"Ciao, wir sehen uns! (¡Chao, nos vemos!)"},
+ {de:"Jo", es:"sip / ajá",
+  note:"Variante súper coloquial de \'ja\' (sí), común entre jóvenes.",
+  example:"Jo, passt. (Sip, está bien.)"},
+ {de:"Nee", es:"nel / no",
+  note:"Variante coloquial y relajada de \'nein\' (no), de uso diario.",
+  example:"Nee, lass mal. (No, mejor no.)"},
+ {de:"gell", es:"¿verdad?",
+  note:"Muletilla regional (sur de Alemania) para pedir confirmación, parecida a \'ne\' pero típica de esa zona.",
+  example:"Das war lustig, gell? (Estuvo divertido, ¿verdad?)"},
+ {de:"ätzend", es:"fastidioso / horrible",
+  note:"Adjetivo coloquial para algo muy molesto o desagradable.",
+  example:"Der Stau war echt ätzend. (El tráfico fue de verdad fastidioso.)"},
+ {de:"derbe", es:"muy / súper",
+  note:"Intensificador coloquial, típico de la región del Ruhr, equivalente a \'voll\' o \'total\'.",
+  example:"Das ist derbe gut! (¡Eso está súper bueno!)"},
+ {de:"Schnulze", es:"canción/película cursi",
+  note:"Para algo sentimental hasta el empalago, en tono de broma.",
+  example:"Das ist eine richtige Schnulze. (Esa es una verdadera cursilería.)"},
+ {de:"abfeiern", es:"celebrar a tope",
+  note:"Verbo coloquial para disfrutar algo con muchas ganas y entusiasmo.",
+  example:"Wir haben das Konzert abgefeiert. (Disfrutamos el concierto a tope.)"},
+ {de:"Krawall", es:"escándalo / alboroto",
+  note:"Sustantivo coloquial para un lío ruidoso o una discusión acalorada.",
+  example:"Mach keinen Krawall! (¡No hagas escándalo!)"},
+ {de:"auf dicke Hose machen", es:"hacerse el importante",
+  note:"Literalmente \'hacer de pantalón grueso\' — fanfarronear o presumir más de lo que se es.",
+  example:"Er macht immer auf dicke Hose. (Él siempre se hace el importante.)"},
+ {de:"Schönwetter-Freund", es:"amigo solo en las buenas",
+  note:"Literalmente \'amigo del buen tiempo\' — alguien que solo está presente cuando todo va bien.",
+  example:"Das ist nur ein Schönwetter-Freund. (Ese es solo un amigo de las buenas.)"},
+ {de:"den Nagel auf den Kopf treffen", es:"dar en el clavo",
+  note:"Literalmente \'golpear el clavo en la cabeza\' — decir exactamente lo correcto.",
+  example:"Damit triffst du den Nagel auf den Kopf. (Con eso das justo en el clavo.)"},
+ {de:"Da brat mir einer einen Storch!", es:"¡no puede ser!",
+  note:"Literalmente \'¡que alguien me fría una cigüeña!\' — expresión disparatada de sorpresa total.",
+  example:"Da brat mir einer einen Storch! Das gibt\'s doch nicht! (¡No puede ser! ¡Esto no es posible!)"},
+ {de:"Schwamm drüber", es:"borrón y cuenta nueva",
+  note:"Literalmente \'esponja sobre eso\' — para dejar atrás un conflicto o error sin más vueltas.",
+  example:"Schwamm drüber, okay? (Borrón y cuenta nueva, ¿sí?)"},
+ {de:"aus dem Häuschen sein", es:"estar fuera de sí (de emoción)",
+  note:"Literalmente \'estar fuera de la casita\' — extremadamente emocionado o alterado por algo bueno.",
+  example:"Sie war völlig aus dem Häuschen. (Ella estaba fuera de sí de la emoción.)"},
+ {de:"jemandem einen Bären aufbinden", es:"tomarle el pelo con una mentira",
+  note:"Literalmente \'atarle un oso a alguien\' — convencer a alguien de algo falso.",
+  example:"Lass dir keinen Bären aufbinden! (¡No dejes que te engañen así!)"},
+ {de:"den Faden verlieren", es:"perder el hilo",
+  note:"Perder la concentración o el rumbo de lo que se estaba diciendo o haciendo.",
+  example:"Ich hab den Faden verloren. (Perdí el hilo.)"},
+ {de:"ins Gras beißen", es:"estirar la pata",
+  note:"Eufemismo coloquial y algo humorístico para morir, literalmente \'morder el pasto\'.",
+  example:"Die alte Pflanze hat ins Gras gebissen. (La planta vieja estiró la pata.)"},
+ {de:"die Flöhe husten hören", es:"ser demasiado desconfiado",
+  note:"Literalmente \'oír toser a las pulgas\' — sospechar de todo, incluso de lo más improbable.",
+  example:"Du hörst wohl die Flöhe husten. (Estás viendo fantasmas donde no los hay.)"},
+ {de:"um den heißen Brei herumreden", es:"andarse con rodeos",
+  note:"Literalmente \'hablar alrededor del puré caliente\' — evitar decir algo directamente.",
+  example:"Red nicht um den heißen Brei herum! (¡No te andes con rodeos!)"},
+ {de:"Da ist der Wurm drin", es:"algo anda mal",
+  note:"Literalmente \'ahí está el gusano dentro\' — cuando algo no funciona bien y no se sabe bien por qué.",
+  example:"Irgendwo ist der Wurm drin. (Algo anda mal en alguna parte.)"},
+ {de:"Alles hat ein Ende, nur die Wurst hat zwei", es:"todo tiene un final",
+  note:"Dicho juguetón: \'todo tiene un final, solo la salchicha tiene dos\' — muy típico y curioso del humor alemán.",
+  example:"Na ja, alles hat ein Ende, nur die Wurst hat zwei. (Bueno, todo tiene un final, solo la salchicha tiene dos.)"},
+ {de:"Pech haben", es:"tener mala suerte",
+  note:"Literalmente \'tener brea\' — el opuesto exacto de \'Schwein haben\' (tener suerte).",
+  example:"Da hatte ich echt Pech. (Ahí sí tuve mala suerte.)"},
+ {de:"Daumen hoch", es:"pulgar arriba",
+  note:"Expresión verbal del gesto de aprobación, usada también fuera de redes sociales.",
+  example:"Daumen hoch für diese Idee! (¡Pulgar arriba para esta idea!)"},
+ {de:"Film ab!", es:"¡que empiece!",
+  note:"Literalmente \'que ruede la película\' — para dar inicio animadamente a algo.",
+  example:"Alle bereit? Film ab! (¿Todos listos? ¡Que empiece!)"},
+ {de:"Macke haben", es:"tener una manía",
+  note:"Para una rareza o costumbre peculiar de alguien, dicho con cariño.",
+  example:"Jeder hat so seine Macke. (Cada quien tiene su manía.)"},
+ {de:"auf der Leitung stehen", es:"estar en las nubes",
+  note:"Literalmente \'estar parado en el cable\' — no entender algo obvio o tardar en captarlo.",
+  example:"Sorry, ich steh gerade auf der Leitung. (Perdón, ahora mismo no caigo en la cuenta.)"},
+ {de:"Schnickschnack", es:"cosas sin importancia",
+  note:"Palabra juguetona para objetos o detalles superfluos, sin mucho valor.",
+  example:"Kauf nicht so viel Schnickschnack. (No compres tantas cositas sin sentido.)"},
+ {de:"Mukke", es:"música",
+  note:"Jerga informal y muy relajada para referirse a la música.",
+  example:"Die Mukke ist richtig gut. (La música está muy buena.)"},
+ {de:"Flausen im Kopf haben", es:"tener ideas raras en la cabeza",
+  note:"Literalmente \'tener pelusas en la cabeza\' — tener planes poco realistas o disparatados.",
+  example:"Hast du schon wieder Flausen im Kopf? (¿Ya tienes otra vez ideas raras?)"},
+ {de:"Schnee von gestern", es:"agua pasada",
+  note:"Literalmente \'nieve de ayer\' — algo del pasado que ya no tiene importancia.",
+  example:"Das ist doch Schnee von gestern. (Eso ya es agua pasada.)"},
+ {de:"Kuddelmuddel", es:"lío / desorden total",
+  note:"Palabra con sonido divertido para un caos o desorden general.",
+  example:"Was für ein Kuddelmuddel! (¡Qué desorden!)"},
+ {de:"Tohuwabohu", es:"caos total",
+  note:"Préstamo curioso del hebreo bíblico, muy integrado al alemán coloquial para describir un caos absoluto.",
+  example:"Hier herrscht totales Tohuwabohu. (Aquí reina un caos total.)"},
+ {de:"Krimskrams", es:"chucherías / cositas",
+  note:"Similar a \'Schnickschnack\' — objetos pequeños y sin mucho valor, acumulados por ahí.",
+  example:"Räum den Krimskrams weg! (¡Guarda esas chucherías!)"},
+ {de:"auf Wolke sieben schweben", es:"estar en una nube",
+  note:"Literalmente \'flotar en la nube siete\' — estar sumamente feliz o enamorado.",
+  example:"Seit dem Date schwebt sie auf Wolke sieben. (Desde la cita, ella está en una nube.)"},
+];
+
+const PHRASES_LIST = [
+ {de:"Mit Karte, bitte.", es:"Con tarjeta, por favor.", context:"Al pagar en una tienda"},
+ {de:"Haben Sie Kleingeld?", es:"¿Tiene cambio/sencillo?", context:"Al pagar en efectivo"},
+ {de:"Wo ist die Kasse?", es:"¿Dónde está la caja?", context:"Buscando dónde pagar"},
+ {de:"Ich suche nur, danke.", es:"Solo estoy mirando, gracias.", context:"Cuando un vendedor se acerca"},
+ {de:"Gibt es das auch in Größe M?", es:"¿Hay esto también en talla M?", context:"Pidiendo otra talla"},
+ {de:"Kann ich das umtauschen?", es:"¿Puedo cambiar esto?", context:"Pidiendo cambiar un producto"},
+ {de:"Haben Sie eine Tüte?", es:"¿Tiene una bolsa?", context:"Pidiendo bolsa en la tienda"},
+ {de:"Wie viel kostet das?", es:"¿Cuánto cuesta esto?", context:"Preguntando el precio"},
+ {de:"Das ist zu teuer.", es:"Eso es muy caro.", context:"Comentando el precio"},
+ {de:"Ich brauche eine Quittung, bitte.", es:"Necesito un recibo, por favor.", context:"Pidiendo el comprobante"},
+ {de:"Die Rechnung, bitte.", es:"La cuenta, por favor.", context:"Al terminar de comer"},
+ {de:"Ich hätte gern einen Kaffee.", es:"Quisiera un café.", context:"Pidiendo algo de tomar"},
+ {de:"Können wir bestellen?", es:"¿Podemos pedir?", context:"Llamando al mesero"},
+ {de:"Ist hier noch frei?", es:"¿Está libre este lugar?", context:"Preguntando por un asiento"},
+ {de:"Zusammen oder getrennt?", es:"¿Junto o por separado?", context:"Pregunta típica del mesero al pagar"},
+ {de:"Ich bin Vegetarier(in).", es:"Soy vegetariano/a.", context:"Avisando una restricción alimentaria"},
+ {de:"Guten Appetit!", es:"¡Buen provecho!", context:"Antes de comer"},
+ {de:"Schmeckt's?", es:"¿Está rico?", context:"Preguntando si la comida gustó"},
+ {de:"Können Sie mir etwas empfehlen?", es:"¿Puede recomendarme algo?", context:"Pidiendo sugerencia del menú"},
+ {de:"Das war sehr lecker.", es:"Estuvo muy rico.", context:"Elogiando la comida"},
+ {de:"Eine Fahrkarte nach Berlin, bitte.", es:"Un boleto a Berlín, por favor.", context:"Comprando un boleto"},
+ {de:"Wann fährt der nächste Zug?", es:"¿Cuándo sale el próximo tren?", context:"Preguntando horarios"},
+ {de:"Ist dieser Platz frei?", es:"¿Está libre este asiento?", context:"En el tren/bus"},
+ {de:"Muss ich umsteigen?", es:"¿Tengo que hacer transbordo?", context:"Preguntando sobre la ruta"},
+ {de:"Wo finde ich ein Taxi?", es:"¿Dónde encuentro un taxi?", context:"Buscando transporte"},
+ {de:"Zum Flughafen, bitte.", es:"Al aeropuerto, por favor.", context:"Indicando destino al taxista"},
+ {de:"Wie lange dauert die Fahrt?", es:"¿Cuánto dura el viaje?", context:"Preguntando duración"},
+ {de:"Fährt dieser Bus zum Zentrum?", es:"¿Este bus va al centro?", context:"Confirmando la ruta"},
+ {de:"Ich habe meinen Zug verpasst.", es:"Perdí mi tren.", context:"Avisando un contratiempo"},
+ {de:"Wo ist der Ausgang?", es:"¿Dónde está la salida?", context:"En una estación/aeropuerto"},
+ {de:"Wie komme ich zum Bahnhof?", es:"¿Cómo llego a la estación?", context:"Pidiendo indicaciones"},
+ {de:"Ist das weit von hier?", es:"¿Está lejos de aquí?", context:"Preguntando distancia"},
+ {de:"Gehen Sie geradeaus.", es:"Siga derecho.", context:"Dando indicaciones"},
+ {de:"Biegen Sie links ab.", es:"Doble a la izquierda.", context:"Dando indicaciones"},
+ {de:"Ich habe mich verlaufen.", es:"Me perdí.", context:"Avisando que estás perdido"},
+ {de:"Können Sie mir das auf der Karte zeigen?", es:"¿Puede mostrarme en el mapa?", context:"Pidiendo ayuda visual"},
+ {de:"Wie weit ist es zu Fuß?", es:"¿Qué tan lejos está caminando?", context:"Preguntando distancia a pie"},
+ {de:"Entschuldigung, wo ist die Toilette?", es:"Disculpe, ¿dónde está el baño?", context:"Pregunta muy común"},
+ {de:"Wie geht's?", es:"¿Cómo estás?", context:"Saludo informal"},
+ {de:"Schönen Tag noch!", es:"¡Que tengas buen día!", context:"Al despedirse"},
+ {de:"Schön, Sie kennenzulernen.", es:"Un gusto conocerlo/a.", context:"Al conocer a alguien (formal)"},
+ {de:"Bis später!", es:"¡Hasta luego!", context:"Despedida informal"},
+ {de:"Wie war dein Wochenende?", es:"¿Cómo estuvo tu fin de semana?", context:"Small talk típico"},
+ {de:"Was machst du beruflich?", es:"¿A qué te dedicas?", context:"Pregunta común al conocer a alguien"},
+ {de:"Lange nicht gesehen!", es:"¡Cuánto tiempo sin verte!", context:"Al reencontrarse con alguien"},
+ {de:"Grüß dich!", es:"¡Saludos!", context:"Saludo informal/regional"},
+ {de:"Ich brauche einen Arzt.", es:"Necesito un médico.", context:"En una emergencia"},
+ {de:"Rufen Sie einen Krankenwagen!", es:"¡Llame a una ambulancia!", context:"En una emergencia grave"},
+ {de:"Ich habe Kopfschmerzen.", es:"Tengo dolor de cabeza.", context:"Describiendo un síntoma"},
+ {de:"Wo ist die nächste Apotheke?", es:"¿Dónde está la farmacia más cercana?", context:"Buscando medicinas"},
+ {de:"Ich bin allergisch gegen...", es:"Soy alérgico/a a...", context:"Avisando una alergia"},
+ {de:"Es ist ein Notfall!", es:"¡Es una emergencia!", context:"Pidiendo ayuda urgente"},
+ {de:"Ich fühle mich nicht gut.", es:"No me siento bien.", context:"Describiendo malestar"},
+ {de:"Können Sie mir helfen?", es:"¿Puede ayudarme?", context:"Pidiendo ayuda en general"},
+ {de:"Ich habe mich verletzt.", es:"Me lastimé.", context:"Avisando una herida"},
+ {de:"Wo ist das nächste Krankenhaus?", es:"¿Dónde está el hospital más cercano?", context:"Buscando atención médica"},
+ {de:"Ich habe einen Termin.", es:"Tengo una cita.", context:"Al llegar a una oficina"},
+ {de:"Welche Unterlagen brauche ich?", es:"¿Qué documentos necesito?", context:"Preguntando requisitos"},
+ {de:"Wo muss ich das abgeben?", es:"¿Dónde tengo que entregar esto?", context:"En una oficina de trámites"},
+ {de:"Wie lange dauert das?", es:"¿Cuánto tiempo toma esto?", context:"Preguntando tiempo de espera"},
+ {de:"Ich möchte einen Termin vereinbaren.", es:"Quisiera agendar una cita.", context:"Pidiendo una cita"},
+ {de:"Haben Sie heute noch einen Platz frei?", es:"¿Tiene un espacio libre hoy?", context:"Pidiendo cita el mismo día"},
+ {de:"Wo ist das Bürgeramt?", es:"¿Dónde está la oficina de registro ciudadano?", context:"Trámite típico en Alemania"},
+ {de:"Ich brauche eine Bescheinigung.", es:"Necesito un certificado/constancia.", context:"Pidiendo un documento oficial"},
+ {de:"Kann ich bitte mit Frau Müller sprechen?", es:"¿Puedo hablar con la señora Müller, por favor?", context:"Llamada formal"},
+ {de:"Einen Moment, bitte.", es:"Un momento, por favor.", context:"Al poner en espera"},
+ {de:"Ich rufe später noch mal an.", es:"Llamaré más tarde.", context:"Al no poder comunicarse"},
+ {de:"Können Sie lauter sprechen?", es:"¿Puede hablar más fuerte?", context:"Mala señal/no se escucha bien"},
+ {de:"Wer spricht, bitte?", es:"¿Quién habla, por favor?", context:"Preguntando quién llama"},
+ {de:"Ich melde mich später bei Ihnen.", es:"Me comunicaré con usted más tarde.", context:"Cerrando una llamada"},
+ {de:"Entschuldigung, ich habe mich verspätet.", es:"Disculpa, llegué tarde.", context:"Al llegar tarde"},
+ {de:"Das tut mir leid.", es:"Lo siento.", context:"Disculpándose"},
+ {de:"Kein Problem!", es:"¡No hay problema!", context:"Aceptando una disculpa"},
+ {de:"Vielen Dank für Ihre Hilfe.", es:"Muchas gracias por su ayuda.", context:"Agradeciendo formalmente"},
+ {de:"Es tut mir leid, das war mein Fehler.", es:"Lo siento, fue mi culpa.", context:"Asumiendo un error"},
+ {de:"Darf ich Sie kurz stören?", es:"¿Puedo molestarlo un momento?", context:"Pidiendo permiso para interrumpir"},
+ {de:"Vielen Dank, gleichfalls!", es:"¡Muchas gracias, igualmente!", context:"Respondiendo a un buen deseo"},
+ {de:"Es ist mir eine Freude.", es:"Es un placer.", context:"Respuesta cortés"},
+ {de:"Ich habe eine Reservierung.", es:"Tengo una reservación.", context:"Al llegar a un hotel"},
+ {de:"Um wie viel Uhr ist der Check-in?", es:"¿A qué hora es el check-in?", context:"Preguntando horarios"},
+ {de:"Gibt es WLAN im Zimmer?", es:"¿Hay wifi en la habitación?", context:"Preguntando por internet"},
+ {de:"Das Zimmer ist nicht sauber.", es:"La habitación no está limpia.", context:"Haciendo un reclamo"},
+ {de:"Können Sie mein Gepäck aufbewahren?", es:"¿Puede guardar mi equipaje?", context:"Pidiendo guardar maletas"},
+ {de:"Wie komme ich zum Frühstücksraum?", es:"¿Cómo llego al comedor?", context:"Preguntando por el desayuno"},
+ {de:"Ich möchte eine Nacht verlängern.", es:"Quisiera extender una noche más.", context:"Pidiendo extender estadía"},
+ {de:"Um wie viel Uhr muss ich auschecken?", es:"¿A qué hora debo hacer check-out?", context:"Preguntando salida"},
+ {de:"Ich möchte ein Konto eröffnen.", es:"Quisiera abrir una cuenta.", context:"En el banco"},
+ {de:"Wie ist der Wechselkurs?", es:"¿Cuál es el tipo de cambio?", context:"Cambiando dinero"},
+ {de:"Meine Karte wurde abgelehnt.", es:"Mi tarjeta fue rechazada.", context:"Problema al pagar"},
+ {de:"Wo ist der nächste Geldautomat?", es:"¿Dónde está el cajero más cercano?", context:"Buscando efectivo"},
+ {de:"Ich habe meine Karte verloren.", es:"Perdí mi tarjeta.", context:"Avisando pérdida de tarjeta"},
+ {de:"Wann kommt meine Bestellung an?", es:"¿Cuándo llega mi pedido?", context:"Preguntando sobre un envío"},
+ {de:"Wie wird das Wetter morgen?", es:"¿Cómo estará el clima mañana?", context:"Preguntando el pronóstico"},
+ {de:"Es ist ziemlich kalt heute.", es:"Hace bastante frío hoy.", context:"Comentando el clima"},
+ {de:"Sollen wir uns morgen treffen?", es:"¿Nos vemos mañana?", context:"Proponiendo quedar"},
+ {de:"Ich habe keine Zeit heute.", es:"No tengo tiempo hoy.", context:"Declinando un plan"},
+ {de:"Das klingt gut!", es:"¡Eso suena bien!", context:"Aceptando una propuesta"},
+ {de:"Vielleicht ein anderes Mal.", es:"Tal vez en otra ocasión.", context:"Declinando cortésmente"},
+ {de:"Herzlichen Glückwunsch!", es:"¡Felicidades!", context:"Felicitando a alguien"},
+ {de:"Gute Besserung!", es:"¡Que te mejores!", context:"Deseando pronta recuperación"},
 ];
 
 const GRAMMAR_TIPS = [
- {title:"Dos formas de decir que te gusta algo",
+ {title:"Dos formas de decir que te gusta algo", category:"Verbos",
   note:"Ambas son correctas, pero 'gefallen' suena más natural y es la que más vas a escuchar en boca de alemanes.",
   examples:[
     {de:"Ich mag Musik.", es:"Me gusta la música. (directo, calcado del español)"},
     {de:"Musik gefällt mir.", es:"Me gusta la música. (más natural/común en alemán)"}
   ]},
- {title:"Preguntar la hora: dos formas igual de válidas",
+ {title:"Preguntar la hora: dos formas igual de válidas", category:"General",
   note:"'Wie spät ist es?' es la más común en el habla diaria; 'Wie viel Uhr ist es?' es igual de correcta pero un poco más formal.",
   examples:[
     {de:"Wie spät ist es?", es:"¿Qué hora es? (más habitual)"},
     {de:"Wie viel Uhr ist es?", es:"¿Qué hora es? (más formal)"}
   ]},
- {title:"Al hablar, casi siempre se usa el Perfekt",
+ {title:"Al hablar, casi siempre se usa el Perfekt", category:"Verbos",
   note:"Aunque el Präteritum también es 'correcto', en conversación los alemanes casi siempre usan el Perfekt para hablar del pasado — excepto con sein, haben y los verbos modales, donde el Präteritum SÍ es lo natural incluso hablando.",
   examples:[
     {de:"Ich habe gegessen.", es:"Comí. (así se habla, no 'ich aß')"},
     {de:"Ich war zu Hause.", es:"Estuve en casa. (aquí sí se usa el Präteritum al hablar)"}
   ]},
- {title:"'Weil' vs 'denn' para dar una razón",
+ {title:"'Weil' vs 'denn' para dar una razón", category:"Orden de palabras",
   note:"Ambas significan 'porque' y son igual de correctas, pero cambian el orden del verbo. 'Denn' es más fácil de usar porque no mueve el verbo.",
   examples:[
     {de:"Ich bleibe zu Hause, weil ich krank bin.", es:"Me quedo en casa porque estoy enfermo. (el verbo va al final)"},
     {de:"Ich bleibe zu Hause, denn ich bin krank.", es:"Me quedo en casa porque estoy enfermo. (orden normal, más sencillo)"}
   ]},
- {title:"El genitivo se está perdiendo en el habla",
+ {title:"El genitivo se está perdiendo en el habla", category:"Pronombres y casos",
   note:"La norma 'correcta' pide genitivo, pero en el alemán hablado es muchísimo más común usar 'von' + dativo — no suena mal ni informal en exceso.",
   examples:[
     {de:"das Auto meines Vaters", es:"el auto de mi padre (genitivo, más formal/escrito)"},
     {de:"das Auto von meinem Vater", es:"el auto de mi padre (con 'von', mucho más común al hablar)"}
   ]},
- {title:"'wegen dem' vs 'wegen des' — la norma y la realidad",
+ {title:"'wegen dem' vs 'wegen des' — la norma y la realidad", category:"Pronombres y casos",
   note:"La gramática 'correcta' exige genitivo después de 'wegen', pero en el habla cotidiana casi todo el mundo usa el dativo. No te preocupes si lo escuchas así.",
   examples:[
     {de:"wegen des Wetters", es:"por el clima (norma gramatical)"},
     {de:"wegen dem Wetter", es:"por el clima (lo que realmente se escucha en la calle)"}
   ]},
- {title:"'kennen' y 'wissen' no son intercambiables",
+ {title:"'kennen' y 'wissen' no son intercambiables", category:"Verbos",
   note:"Ambos se traducen como 'saber/conocer' en español, pero en alemán son muy distintos: 'kennen' es conocer personas o lugares; 'wissen' es saber datos o información.",
   examples:[
     {de:"Ich kenne ihn.", es:"Lo conozco (a él, una persona)."},
     {de:"Ich weiß seinen Namen.", es:"Sé su nombre (un dato)."}
   ]},
- {title:"Cuidado con la doble negación",
+ {title:"Cuidado con la doble negación", category:"Negación y comparación",
   note:"A diferencia del español, en alemán NO se usan dos negaciones para reforzar una idea — dos negativos se anulan entre sí, como en inglés.",
   examples:[
     {de:"Ich habe nichts gesehen.", es:"No vi nada. (correcto: una sola negación)"},
     {de:"Ich habe nichts nicht gesehen. ❌", es:"Incorrecto — nunca se dobla la negación así."}
   ]},
- {title:"El adjetivo cambia si va antes o después del sustantivo",
+ {title:"El adjetivo cambia si va antes o después del sustantivo", category:"Artículos y género",
   note:"Después de 'sein' el adjetivo no lleva terminación; antes del sustantivo sí. Es un error clásico de quien empieza a escribir en alemán.",
   examples:[
     {de:"Das Auto ist schnell.", es:"El auto es rápido. (sin terminación)"},
     {de:"das schnelle Auto", es:"el auto rápido (con terminación, va antes del sustantivo)"}
   ]},
- {title:"Pedir permiso: 'dürfen' es lo 'correcto', pero se escucha 'können'",
+ {title:"Pedir permiso: 'dürfen' es lo 'correcto', pero se escucha 'können'", category:"Verbos",
   note:"Estrictamente, 'dürfen' es el verbo para pedir permiso. En la práctica, muchísimos hablantes nativos usan 'können' también — ambas se entienden perfecto.",
   examples:[
     {de:"Darf ich reinkommen?", es:"¿Puedo entrar? (uso 'correcto' del permiso)"},
     {de:"Kann ich reinkommen?", es:"¿Puedo entrar? (lo que se escucha muchísimo también)"}
   ]},
- {title:"'man' en vez de la voz pasiva",
+ {title:"'man' en vez de la voz pasiva", category:"Orden de palabras",
   note:"La voz pasiva formal existe, pero al hablar es mucho más natural usar 'man' (como el 'se' impersonal del español).",
   examples:[
     {de:"Man macht das so.", es:"Se hace así. (natural, hablado)"},
     {de:"Es wird so gemacht.", es:"Se hace así. (voz pasiva, más formal/escrita)"}
   ]},
- {title:"'ein bisschen' vs 'etwas' para decir 'un poco'",
+ {title:"'ein bisschen' vs 'etwas' para decir 'un poco'", category:"Partículas y matices",
   note:"Ambas son correctas y significan lo mismo. 'ein bisschen' es más coloquial y cálido; 'etwas' suena un poco más neutro o formal.",
   examples:[
     {de:"Ich habe ein bisschen Hunger.", es:"Tengo un poquito de hambre. (coloquial)"},
     {de:"Ich habe etwas Hunger.", es:"Tengo algo de hambre. (más neutro)"}
   ]},
- {title:"'Sie' formal vs 'du' informal",
+ {title:"'Sie' formal vs 'du' informal", category:"Tono y cortesía",
   note:"Usa 'Sie' con desconocidos, en el trabajo o con mayores; 'du' con amigos, familia y en general con gente joven. Si dudas, empieza con 'Sie' — nunca ofende, y muchos alemanes te invitarán a tutearlos si prefieren.",
   examples:[
     {de:"Wie heißen Sie?", es:"¿Cómo se llama usted? (formal)"},
     {de:"Wie heißt du?", es:"¿Cómo te llamas? (informal)"}
   ]},
- {title:"Un 'bitte' al final suaviza cualquier frase",
+ {title:"Un 'bitte' al final suaviza cualquier frase", category:"Tono y cortesía",
   note:"Gramaticalmente no es obligatorio, pero agregar 'bitte' al final de una petición la hace sonar mucho más amable — muy usado en el día a día.",
   examples:[
     {de:"Komm her.", es:"Ven aquí. (suena a orden)"},
     {de:"Komm her, bitte.", es:"Ven aquí, por favor. (mismo mensaje, más amable)"}
   ]},
- {title:"'doch' también sirve para reforzar, no solo para contradecir",
+ {title:"'doch' también sirve para reforzar, no solo para contradecir", category:"Partículas y matices",
   note:"Ya viste que 'doch' contradice una pregunta negativa — pero también se usa para reforzar una idea con la que ya estás de acuerdo, como diciendo 'si es que...'",
   examples:[
     {de:"Das ist doch klar!", es:"¡Pero si está clarísimo! (refuerza, no contradice)"},
     {de:"Das weißt du doch.", es:"Eso ya lo sabes, ¿no? (refuerza algo obvio)"}
   ]},
- {title:"Verbos separables: el prefijo se separa o se junta según el tiempo",
+ {title:"Verbos separables: el prefijo se separa o se junta según el tiempo", category:"Verbos",
   note:"En presente y pasado simple el prefijo se va al final de la frase; en el Perfekt vuelve a unirse al verbo con 'ge-' en medio.",
   examples:[
     {de:"Ich rufe dich an.", es:"Te llamo. (presente: el prefijo 'an' va al final)"},
     {de:"Ich habe dich angerufen.", es:"Te llamé. (Perfekt: el prefijo se junta de nuevo)"}
   ]},
- {title:"'Ich würde sagen...' para opinar con más suavidad",
+ {title:"'Ich würde sagen...' para opinar con más suavidad", category:"Tono y cortesía",
   note:"Usar el condicional en vez de afirmar directo es una forma muy natural y cortés de dar tu opinión en alemán, igual que en español decimos 'yo diría que...'",
   examples:[
     {de:"Das ist falsch.", es:"Eso está mal. (directo, un poco tajante)"},
     {de:"Ich würde sagen, das ist falsch.", es:"Yo diría que eso está mal. (más suave y cortés)"}
   ]},
- {title:"Contracciones habladas: 'hab'' en vez de 'habe'",
+ {title:"Contracciones habladas: 'hab'' en vez de 'habe'", category:"Tono y cortesía",
   note:"En el habla informal, 'ich habe' se acorta muchísimo a 'ich hab''. Se escribe así en mensajes de texto y chats, pero evita usarlo en algo formal o escrito.",
   examples:[
     {de:"Ich habe keine Zeit.", es:"No tengo tiempo. (forma escrita/formal)"},
     {de:"Ich hab' keine Zeit.", es:"No tengo tiempo. (forma hablada/informal)"}
   ]},
 
- {title:"'gern' vs 'gerne' — las dos son correctas",
+ {title:"'gern' vs 'gerne' — las dos son correctas", category:"Partículas y matices",
   note:"Significan exactamente lo mismo y se pueden intercambiar siempre; 'gerne' suena apenas un poco más enfático o cortés, pero nunca es un error usar cualquiera de las dos.",
   examples:[
     {de:"Ich helfe dir gern.", es:"Te ayudo con gusto."},
     {de:"Ich helfe dir gerne.", es:"Te ayudo con mucho gusto. (misma idea, tono casi idéntico)"}
   ]},
- {title:"'kein' vs 'nicht' para negar",
+ {title:"'kein' vs 'nicht' para negar", category:"Negación y comparación",
   note:"'kein' niega sustantivos que llevarían 'ein' o ningún artículo; 'nicht' niega verbos, adjetivos o sustantivos con artículo definido. Es uno de los primeros líos típicos al aprender alemán.",
   examples:[
     {de:"Ich habe keinen Hunger.", es:"No tengo hambre. (sustantivo sin artículo definido → kein)"},
     {de:"Das ist nicht mein Auto.", es:"Ese no es mi auto. (niega el verbo/la frase → nicht)"}
   ]},
- {title:"'als' vs 'wenn' para decir 'cuando' en pasado",
+ {title:"'als' vs 'wenn' para decir 'cuando' en pasado", category:"Orden de palabras",
   note:"'als' se usa para un momento único y ya pasado; 'wenn' para algo repetido (en cualquier tiempo) o para presente/futuro. Confundirlas es un error clásico de hispanohablantes.",
   examples:[
     {de:"Als ich 10 war, zogen wir um.", es:"Cuando tenía 10 años, nos mudamos. (evento único en el pasado)"},
     {de:"Wenn ich müde bin, trinke ich Kaffee.", es:"Cuando estoy cansado, tomo café. (se repite, no es un solo momento)"}
   ]},
- {title:"'seit' vs 'vor' para hablar del tiempo",
+ {title:"'seit' vs 'vor' para hablar del tiempo", category:"Pronombres y casos",
   note:"'seit' indica algo que empezó en el pasado y sigue hasta ahora (desde); 'vor' señala un punto concreto en el pasado (hace). No son intercambiables.",
   examples:[
     {de:"Ich wohne seit drei Jahren hier.", es:"Vivo aquí desde hace tres años. (y sigo viviendo aquí)"},
     {de:"Ich bin vor drei Jahren hergezogen.", es:"Me mudé aquí hace tres años. (un momento puntual del pasado)"}
   ]},
- {title:"Los verbos llevan preposiciones fijas que no siempre coinciden con el español",
+ {title:"Los verbos llevan preposiciones fijas que no siempre coinciden con el español", category:"Verbos",
   note:"Muchos verbos alemanes exigen una preposición específica que hay que memorizar junto con el verbo, porque casi nunca coincide con la lógica del español.",
   examples:[
     {de:"Ich warte auf dich.", es:"Te espero. (literalmente 'espero SOBRE ti' — 'auf' es obligatorio)"},
     {de:"Ich freue mich auf die Reise.", es:"Tengo ganas del viaje. (también con 'auf', no con 'für')"}
   ]},
- {title:"'Ich hätte gern...' para pedir algo con cortesía",
+ {title:"'Ich hätte gern...' para pedir algo con cortesía", category:"Tono y cortesía",
   note:"El condicional 'hätte gern' es la forma más natural y educada de pedir algo en una tienda, café o restaurante — mucho más amable que usar 'ich will' (quiero), que suena brusco.",
   examples:[
     {de:"Ich hätte gern einen Kaffee.", es:"Quisiera un café, por favor."},
     {de:"Ich will einen Kaffee.", es:"Quiero un café. (correcto, pero suena más brusco/directo)"}
   ]},
- {title:"El diminutivo -chen vuelve neutro cualquier sustantivo",
+ {title:"El diminutivo -chen vuelve neutro cualquier sustantivo", category:"Artículos y género",
   note:"Sin importar el género original de la palabra, al agregarle '-chen' (o '-lein') el sustantivo siempre se vuelve 'das' — una regla fija que ayuda mucho a no equivocarse con el artículo.",
   examples:[
     {de:"die Katze → das Kätzchen", es:"la gata → la gatita (cambia de 'die' a 'das')"},
     {de:"der Hund → das Hündchen", es:"el perro → el perrito (cambia de 'der' a 'das')"}
   ]},
- {title:"Comparativos irregulares que no siguen la regla",
+ {title:"Comparativos irregulares que no siguen la regla", category:"Negación y comparación",
   note:"La mayoría de los adjetivos forman el comparativo agregando '-er', pero algunos muy comunes cambian por completo — hay que aprenderlos de memoria, igual que 'bueno-mejor' en español.",
   examples:[
     {de:"gut → besser → am besten", es:"bueno → mejor → el mejor (irregular, no 'guter')"},
     {de:"schnell → schneller → am schnellsten", es:"rápido → más rápido → el más rápido (este sí es regular)"}
   ]},
- {title:"'zu + infinitivo' vs 'um...zu + infinitivo'",
+ {title:"'zu + infinitivo' vs 'um...zu + infinitivo'", category:"Orden de palabras",
   note:"Ambas estructuras usan el infinitivo con 'zu', pero 'um...zu' añade la idea de propósito ('para hacer algo'), mientras que el 'zu' simple solo completa el sentido de otro verbo.",
   examples:[
     {de:"Ich versuche zu schlafen.", es:"Intento dormir. (completa el verbo 'versuchen')"},
     {de:"Ich gehe früh ins Bett, um auszuschlafen.", es:"Me acuesto temprano para dormir bien. (indica propósito)"}
   ]},
- {title:"'erst' y 'nur' no significan lo mismo aunque ambos parezcan 'solo'",
+ {title:"'erst' y 'nur' no significan lo mismo aunque ambos parezcan 'solo'", category:"Partículas y matices",
   note:"'erst' señala que algo pasó más tarde de lo esperado o que 'todavía' está en cierto punto; 'nur' es simplemente 'solamente', sin esa idea de tiempo.",
   examples:[
     {de:"Es ist erst acht Uhr.", es:"Apenas son las ocho. (todavía es temprano)"},
     {de:"Ich habe nur acht Euro.", es:"Solo tengo ocho euros. (cantidad limitada, sin relación con el tiempo)"}
   ]},
- {title:"'schon' para tranquilizar a alguien",
+ {title:"'schon' para tranquilizar a alguien", category:"Partículas y matices",
   note:"Además de significar 'ya', 'schon' se usa solo, al final de una frase corta, para dar ánimo o seguridad — un uso muy coloquial y natural.",
   examples:[
     {de:"Das wird schon!", es:"¡Todo va a salir bien!"},
     {de:"Das schaffst du schon.", es:"Tú puedes con esto, ya verás."}
   ]},
- {title:"'noch nicht' vs 'nicht mehr'",
+ {title:"'noch nicht' vs 'nicht mehr'", category:"Negación y comparación",
   note:"'noch nicht' es 'todavía no' (algo que aún no pasó); 'nicht mehr' es 'ya no' (algo que dejó de pasar). Se usan constantemente y es fácil confundirlas al empezar.",
   examples:[
     {de:"Ich bin noch nicht fertig.", es:"Todavía no estoy listo."},
     {de:"Ich rauche nicht mehr.", es:"Ya no fumo."}
   ]},
- {title:"Orden de la oración: tiempo, modo y lugar",
+ {title:"Orden de la oración: tiempo, modo y lugar", category:"Orden de palabras",
   note:"Cuando una frase en alemán tiene varios complementos, el orden natural es TIEMPO (cuándo) → MODO (cómo) → LUGAR (dónde) — memorizar este orden ayuda mucho a sonar más natural.",
   examples:[
     {de:"Ich fahre morgen mit dem Bus zur Arbeit.", es:"Mañana voy al trabajo en autobús. (tiempo → modo → lugar)"},
     {de:"Wir treffen uns heute Abend gemütlich zu Hause.", es:"Nos vemos hoy en la noche, tranquilos, en casa."}
   ]},
- {title:"Verbos reflexivos con acusativo o con dativo",
+ {title:"Verbos reflexivos con acusativo o con dativo", category:"Pronombres y casos",
   note:"La mayoría de los verbos reflexivos usan el pronombre en acusativo, pero si la frase ya tiene un objeto directo, el reflexivo pasa a dativo — un matiz que se nota sobre todo con partes del cuerpo.",
   examples:[
     {de:"Ich wasche mich.", es:"Me lavo. (acusativo: 'mich' es el objeto directo)"},
     {de:"Ich wasche mir die Hände.", es:"Me lavo las manos. (dativo: 'mir', porque 'die Hände' ya es el objeto directo)"}
   ]},
- {title:"'brauchen...zu' en frases negativas",
+ {title:"'brauchen...zu' en frases negativas", category:"Verbos",
   note:"Formalmente, 'brauchen' pide un 'zu' antes del infinitivo en frases negativas ('no hace falta que...'); en el habla informal muchos alemanes lo omiten y usan el verbo casi como un modal.",
   examples:[
     {de:"Du brauchst nicht zu kommen.", es:"No hace falta que vengas. (forma 'correcta' completa)"},
     {de:"Du brauchst nicht kommen.", es:"No hace falta que vengas. (muy común en el habla, sin el 'zu')"}
   ]},
- {title:"Distintas formas de decir 'tal vez'",
+ {title:"Distintas formas de decir 'tal vez'", category:"Partículas y matices",
   note:"'vielleicht' es la más común y neutra; 'eventuell' suena un poco más formal/profesional; 'möglicherweise' es la más formal de las tres, típica de textos o contextos serios.",
   examples:[
     {de:"Vielleicht komme ich später.", es:"Tal vez llegue más tarde. (la más usada en el día a día)"},
     {de:"Eventuell brauchen wir mehr Zeit.", es:"Eventualmente podríamos necesitar más tiempo. (tono algo más formal)"}
   ]},
- {title:"'sowohl...als auch' para decir 'tanto...como'",
+ {title:"'sowohl...als auch' para decir 'tanto...como'", category:"Orden de palabras",
   note:"Es la forma más elegante de unir dos ideas con igual peso; en el habla cotidiana mucha gente simplemente usa 'und' (y), que es más simple pero menos formal.",
   examples:[
     {de:"Sowohl mein Vater als auch meine Mutter kommen.", es:"Tanto mi padre como mi madre vienen. (más formal/escrito)"},
     {de:"Mein Vater und meine Mutter kommen.", es:"Mi padre y mi madre vienen. (más simple, uso diario)"}
   ]},
- {title:"'mal eben' — dos partículas juntas para reforzar",
+ {title:"'mal eben' — dos partículas juntas para reforzar", category:"Partículas y matices",
   note:"Combinar 'mal' y 'eben' es muy coloquial y suaviza aún más una petición rápida o improvisada — se escucha muchísimo en el habla diaria, casi imposible de traducir literalmente.",
   examples:[
     {de:"Ich geh mal eben einkaufen.", es:"Voy rapidito a hacer las compras."},
     {de:"Kannst du mal eben helfen?", es:"¿Me puedes ayudar tantito?"}
   ]},
- {title:"Cómo suavizar un 'no' directo",
+ {title:"Cómo suavizar un 'no' directo", category:"Tono y cortesía",
   note:"En vez de decir 'nein' de forma tajante, es muy común usar 'eher nicht' (mejor no) para sonar menos cortante mientras igual dejas clara tu postura.",
   examples:[
     {de:"Nein, das will ich nicht.", es:"No, eso no lo quiero. (directo)"},
     {de:"Eher nicht, danke.", es:"Mejor no, gracias. (más suave, igual de claro)"}
   ]},
- {title:"'Ich denke' vs 'Ich glaube'",
+ {title:"'Ich denke' vs 'Ich glaube'", category:"Verbos",
   note:"Ambas se traducen como 'pienso/creo', pero 'denken' sugiere una reflexión más activa, mientras que 'glauben' es más una suposición o creencia — en la práctica se usan casi indistintamente.",
   examples:[
     {de:"Ich denke, das ist richtig.", es:"Pienso que eso es correcto. (idea más razonada)"},
     {de:"Ich glaube, es regnet gleich.", es:"Creo que va a llover pronto. (más una intuición)"}
   ]},
- {title:"El 'es' impersonal obligatorio",
+ {title:"El 'es' impersonal obligatorio", category:"Pronombres y casos",
   note:"A diferencia del español, donde frases como 'llueve' no necesitan sujeto, en alemán siempre hace falta un 'es' sin significado propio, solo para completar la estructura de la oración.",
   examples:[
     {de:"Es regnet.", es:"Llueve. (el 'es' es obligatorio, no se puede omitir)"},
     {de:"Es gibt viele Leute hier.", es:"Hay mucha gente aquí."}
   ]},
- {title:"'das' vs 'es' para referirse a algo ya dicho",
+ {title:"'das' vs 'es' para referirse a algo ya dicho", category:"Pronombres y casos",
   note:"Cuando retomas una idea completa (no un sustantivo con género específico), lo natural es usar 'das' — 'es' se reserva más para el sujeto impersonal o para sustantivos neutros ya mencionados.",
   examples:[
     {de:"Das wusste ich nicht.", es:"Eso no lo sabía. (retoma toda la idea anterior)"},
     {de:"Das Kind ist müde — es will schlafen.", es:"El niño está cansado — quiere dormir. ('es' porque 'das Kind' es neutro)"}
   ]},
- {title:"Comparar igualdad con 'genauso... wie'",
+ {title:"Comparar igualdad con 'genauso... wie'", category:"Negación y comparación",
   note:"Para decir 'tan... como' en alemán se usa 'genauso... wie' (o simplemente 'so... wie') — una estructura muy común que no se parece en nada a la española.",
   examples:[
     {de:"Sie ist genauso groß wie ich.", es:"Ella es tan alta como yo."},
     {de:"Das ist so einfach wie es klingt.", es:"Es tan fácil como suena."}
   ]},
- {title:"'immer' + comparativo para 'cada vez más'",
+ {title:"'immer' + comparativo para 'cada vez más'", category:"Negación y comparación",
   note:"Para expresar un cambio progresivo, el alemán simplemente pone 'immer' antes del comparativo — mucho más simple que la construcción española.",
   examples:[
     {de:"Es wird immer kälter.", es:"Cada vez hace más frío."},
     {de:"Mein Deutsch wird immer besser.", es:"Mi alemán va mejorando cada vez más."}
   ]},
- {title:"'schon mal' para preguntar si ya viviste algo",
+ {title:"'schon mal' para preguntar si ya viviste algo", category:"Partículas y matices",
   note:"Esta combinación es la forma natural de preguntar por experiencias pasadas, equivalente a 'alguna vez' en español — se usa muchísimo en conversación.",
   examples:[
     {de:"Warst du schon mal in Berlin?", es:"¿Has estado alguna vez en Berlín?"},
     {de:"Hast du das schon mal gemacht?", es:"¿Ya has hecho eso alguna vez?"}
   ]},
- {title:"'ganz' como intensificador suave",
+ {title:"'ganz' como intensificador suave", category:"Partículas y matices",
   note:"'ganz' antes de un adjetivo significa 'bastante', más suave que 'sehr' (muy) — un matiz útil para no sonar siempre igual de enfático.",
   examples:[
     {de:"Das ist ganz gut.", es:"Está bastante bien. (matiz moderado)"},
     {de:"Das ist sehr gut.", es:"Está muy bien. (más entusiasta/enfático)"}
   ]},
- {title:"Respuestas cortas: 'Stimmt' en vez de la frase completa",
+ {title:"Respuestas cortas: 'Stimmt' en vez de la frase completa", category:"Tono y cortesía",
   note:"En vez de repetir 'das stimmt' (eso es cierto) completo, los alemanes muy frecuentemente responden solo con 'Stimmt' — una forma natural y económica de confirmar algo.",
   examples:[
     {de:"Stimmt!", es:"¡Cierto! / ¡Tienes razón!"},
     {de:"Das stimmt nicht ganz.", es:"Eso no es del todo cierto."}
   ]},
- {title:"Las contracciones de preposición + artículo son casi obligatorias",
+ {title:"Las contracciones de preposición + artículo son casi obligatorias", category:"Pronombres y casos",
   note:"Combinaciones como 'im' (in dem), 'zum' (zu dem), 'beim' (bei dem) o 'am' (an dem) se usan casi siempre contraídas en el habla — decir la forma larga suena forzado o poco natural.",
   examples:[
     {de:"Ich bin im Büro.", es:"Estoy en la oficina. (casi nadie diría 'in dem Büro')"},
     {de:"Wir treffen uns beim Bahnhof.", es:"Nos vemos en la estación. (contracción natural de 'bei dem')"}
   ]},
- {title:"'auch' cambia de matiz según su posición",
+ {title:"'auch' cambia de matiz según su posición", category:"Orden de palabras",
   note:"'auch' significa 'también', pero su posición en la frase determina exactamente QUÉ palabra está reforzando — un detalle sutil que cambia el énfasis de toda la oración.",
   examples:[
     {de:"Ich mag auch Kaffee.", es:"A mí también me gusta el café. (énfasis en 'también me gusta')"},
     {de:"Ich mag auch Kaffee, nicht nur Tee.", es:"Me gusta también el café, no solo el té. (énfasis en 'café' específicamente)"}
   ]},
- {title:"Posesivos en plural siempre llevan '-e'",
+ {title:"Posesivos en plural siempre llevan '-e'", category:"Artículos y género",
   note:"'mein/dein/sein...' pierden su forma base y agregan '-e' cuando el sustantivo que acompañan está en plural, sin importar el género original del sustantivo.",
   examples:[
     {de:"mein Buch → meine Bücher", es:"mi libro → mis libros"},
     {de:"seine Schwester → seine Schwestern", es:"su hermana → sus hermanas"}
   ]},
- {title:"Preguntas sí/no empiezan siempre con el verbo",
+ {title:"Preguntas sí/no empiezan siempre con el verbo", category:"Orden de palabras",
   note:"A diferencia del español, donde basta la entonación, en alemán las preguntas de sí/no mueven el verbo conjugado al inicio absoluto de la frase.",
   examples:[
     {de:"Kommst du morgen?", es:"¿Vienes mañana? (verbo primero, sin palabra interrogativa)"},
     {de:"Bist du müde?", es:"¿Estás cansado?"}
   ]},
- {title:"'sauwetter' y otras palabras con 'sau-' como intensificador",
+ {title:"'sauwetter' y otras palabras con 'sau-' como intensificador", category:"Partículas y matices",
   note:"En el alemán coloquial, el prefijo 'sau-' (literalmente 'de cerdo') se pega a un sustantivo o adjetivo para intensificarlo muchísimo, en un tono informal y algo exagerado.",
   examples:[
     {de:"Was für ein Sauwetter!", es:"¡Qué clima tan horrible!"},
     {de:"Das war saukalt draußen.", es:"Afuera hacía un frío tremendo."}
+  ]},
+
+ {title:"El Konjunktiv II para pedir las cosas con más cortesía", category:"Tono y cortesía",
+  note:"Usar \'würde/könnte/hätte\' en vez del presente normal suaviza mucho una petición — es la forma más natural de pedir algo educadamente.",
+  examples:[
+    {de:"Gibst du mir das Buch?", es:"¿Me das el libro? (directo)"},
+    {de:"Könntest du mir das Buch geben?", es:"¿Podrías darme el libro? (más cortés)"}
+  ]},
+ {title:"Los pronombres relativos usan las mismas palabras que der/die/das", category:"Pronombres y casos",
+  note:"\'der\', \'die\' y \'das\' no solo son artículos — también funcionan como pronombres relativos (\'que/quien\'), y cambian según el caso de la oración.",
+  examples:[
+    {de:"Der Mann, der dort steht, ist mein Vater.", es:"El hombre que está ahí es mi padre. (der = sujeto)"},
+    {de:"Der Mann, den ich sehe, ist mein Vater.", es:"El hombre que veo es mi padre. (den = objeto directo)"}
+  ]},
+ {title:"Algunos verbos siempre piden dativo, no acusativo", category:"Pronombres y casos",
+  note:"Verbos como \'helfen\', \'danken\' y \'gefallen\' llevan dativo aunque en español los pensemos como objeto directo — hay que aprenderlos de memoria.",
+  examples:[
+    {de:"Ich helfe dir.", es:"Te ayudo. (dativo: dir, no \'dich\')"},
+    {de:"Ich danke dir.", es:"Te doy las gracias. (también dativo)"}
+  ]},
+ {title:"Preposiciones de dos casos: cambian según si hay movimiento", category:"Pronombres y casos",
+  note:"Preposiciones como \'in\', \'an\', \'auf\' usan acusativo cuando hay movimiento hacia un lugar, y dativo cuando describen una posición fija.",
+  examples:[
+    {de:"Ich gehe in die Küche.", es:"Voy a la cocina. (movimiento → acusativo)"},
+    {de:"Ich bin in der Küche.", es:"Estoy en la cocina. (posición fija → dativo)"}
+  ]},
+ {title:"Verbos reflexivos con preposición fija", category:"Verbos",
+  note:"Muchos verbos reflexivos exigen una preposición específica que forma parte del significado, como \'sich freuen auf\' (algo futuro) vs \'sich freuen über\' (algo ya ocurrido).",
+  examples:[
+    {de:"Ich freue mich auf die Ferien.", es:"Tengo ganas de las vacaciones. (futuro)"},
+    {de:"Ich freue mich über das Geschenk.", es:"Me alegra el regalo. (ya pasó)"}
+  ]},
+ {title:"Preguntas indirectas: usa \'ob\' cuando no hay palabra interrogativa", category:"Orden de palabras",
+  note:"Para reportar una pregunta de sí/no dentro de otra frase, se usa \'ob\' (si) en vez de omitirlo como en español.",
+  examples:[
+    {de:"Weißt du, ob er kommt?", es:"¿Sabes si él viene?"},
+    {de:"Ich frage mich, ob das stimmt.", es:"Me pregunto si eso es cierto."}
+  ]},
+ {title:"Plusquamperfekt: para algo que pasó antes de otro momento pasado", category:"Verbos",
+  note:"Se forma con el Präteritum de haben/sein + participio, y se usa para dejar claro que algo ya había pasado antes de otro evento pasado.",
+  examples:[
+    {de:"Ich hatte schon gegessen, als du kamst.", es:"Ya había comido cuando llegaste."},
+    {de:"Sie war schon weg, als ich ankam.", es:"Ella ya se había ido cuando llegué."}
+  ]},
+ {title:"El Futur II casi no se usa — mejor evítalo", category:"Verbos",
+  note:"Existe para hablar de algo que \'habrá pasado\' en el futuro, pero en la práctica casi nadie lo usa — el contexto o el Perfekt normal suelen bastar.",
+  examples:[
+    {de:"Ich werde das bis morgen gemacht haben.", es:"Habré hecho eso para mañana. (técnicamente correcto, pero raro)"},
+    {de:"Ich mache das bis morgen.", es:"Hago eso para mañana. (mucho más natural)"}
+  ]},
+ {title:"Voz pasiva: \'werden\' (acción) vs \'sein\' (resultado)", category:"Verbos",
+  note:"\'werden + participio\' describe la acción pasiva en curso; \'sein + participio\' describe el resultado ya terminado — un matiz importante y distinto al español.",
+  examples:[
+    {de:"Die Tür wird geöffnet.", es:"La puerta está siendo abierta. (acción)"},
+    {de:"Die Tür ist geöffnet.", es:"La puerta está abierta. (resultado, ya pasó)"}
+  ]},
+ {title:"\'lassen\' para decir que alguien haga algo por ti", category:"Verbos",
+  note:"\'lassen + infinitivo\' expresa que mandas hacer algo o permites que pase, sin hacerlo tú mismo — muy usado y sin equivalente de una sola palabra en español.",
+  examples:[
+    {de:"Ich lasse mein Auto reparieren.", es:"Mando a reparar mi auto. (no lo reparo yo)"},
+    {de:"Lass mich das machen.", es:"Déjame hacer eso."}
+  ]},
+ {title:"brauchen vs müssen: \'necesitar\' no siempre es \'deber\'", category:"Verbos",
+  note:"\'müssen\' expresa obligación general; \'brauchen\' (seguido de \'zu\' en forma completa) enfatiza más la necesidad concreta de algo.",
+  examples:[
+    {de:"Ich muss heute arbeiten.", es:"Debo trabajar hoy. (obligación)"},
+    {de:"Ich brauche mehr Zeit.", es:"Necesito más tiempo. (necesidad)"}
+  ]},
+ {title:"jemand / niemand también se declinan", category:"Pronombres y casos",
+  note:"\'alguien\' y \'nadie\' cambian de forma según el caso de la oración, igual que cualquier pronombre: jemand → jemanden (acusativo) → jemandem (dativo).",
+  examples:[
+    {de:"Ich sehe jemanden.", es:"Veo a alguien. (acusativo)"},
+    {de:"Ich helfe jemandem.", es:"Ayudo a alguien. (dativo)"}
+  ]},
+ {title:"welcher/welche/welches se declinan como el artículo definido", category:"Pronombres y casos",
+  note:"Para preguntar \'¿cuál?\' el pronombre interrogativo \'welcher\' cambia de género, número y caso igual que \'der/die/das\'.",
+  examples:[
+    {de:"Welches Buch möchtest du?", es:"¿Cuál libro quieres? (neutro, acusativo)"},
+    {de:"Mit welcher Farbe?", es:"¿Con cuál color? (femenino, dativo)"}
+  ]},
+ {title:"derselbe vs der gleiche: \'el mismo\' tiene dos matices", category:"Artículos y género",
+  note:"\'derselbe\' es literalmente el mismo objeto/persona; \'der gleiche\' es uno idéntico pero distinto — una diferencia que el español no marca tan claro.",
+  examples:[
+    {de:"Wir haben denselben Lehrer.", es:"Tenemos el mismo profesor. (la misma persona)"},
+    {de:"Wir haben die gleiche Tasche.", es:"Tenemos la misma bolsa. (dos bolsas iguales, no una)"}
+  ]},
+ {title:"Nomen-Verb-Verbindungen: un sustantivo + verbo genérico en vez de un solo verbo", category:"Verbos",
+  note:"El alemán formal prefiere combinaciones como \'eine Entscheidung treffen\' (tomar una decisión) en vez del verbo simple \'entscheiden\' — suena más natural en contextos escritos o profesionales.",
+  examples:[
+    {de:"Ich treffe eine Entscheidung.", es:"Tomo una decisión. (más formal)"},
+    {de:"Ich entscheide mich.", es:"Me decido. (más directo/hablado)"}
+  ]},
+ {title:"trotzdem vs obwohl: \'aunque\' tiene dos formas distintas", category:"Orden de palabras",
+  note:"\'obwohl\' introduce una oración subordinada (verbo al final); \'trotzdem\' es un adverbio independiente que va en su propia frase.",
+  examples:[
+    {de:"Obwohl es regnet, gehe ich raus.", es:"Aunque llueve, salgo. (obwohl + verbo al final)"},
+    {de:"Es regnet. Trotzdem gehe ich raus.", es:"Llueve. Aun así, salgo. (trotzdem, frase aparte)"}
+  ]},
+ {title:"außerdem: para sumar una idea más, sin repetir \'und\'", category:"Partículas y matices",
+  note:"Muy usado para agregar información extra a lo ya dicho, como \'además\' en español — más elegante que encadenar todo con \'und\'.",
+  examples:[
+    {de:"Das Hotel ist günstig. Außerdem liegt es zentral.", es:"El hotel es barato. Además, está céntrico."},
+    {de:"Ich bin müde und außerdem hungrig.", es:"Estoy cansado y además hambriento."}
+  ]},
+ {title:"je...desto: \'cuanto más... más\'", category:"Orden de palabras",
+  note:"Estructura fija para comparaciones proporcionales — ambas partes llevan el verbo en una posición distinta a la frase normal.",
+  examples:[
+    {de:"Je mehr du übst, desto besser wirst du.", es:"Cuanto más practiques, mejor te volverás."},
+    {de:"Je früher, desto besser.", es:"Cuanto antes, mejor."}
+  ]},
+ {title:"beide vs alle: \'ambos\' no es lo mismo que \'todos\'", category:"Pronombres y casos",
+  note:"\'beide\' se usa específicamente para dos elementos; \'alle\' es para tres o más — un matiz que en español a veces se difumina con \'todos\'.",
+  examples:[
+    {de:"Beide Kinder schlafen.", es:"Ambos niños duermen. (los dos)"},
+    {de:"Alle Kinder schlafen.", es:"Todos los niños duermen. (tres o más)"}
+  ]},
+ {title:"jeder/jede/jedes: \'cada\' también se declina por género", category:"Artículos y género",
+  note:"A diferencia del español, donde \'cada\' no cambia, en alemán \'jeder\' concuerda en género y caso con el sustantivo que acompaña.",
+  examples:[
+    {de:"Jeder Mann", es:"Cada hombre (masculino)"},
+    {de:"Jede Frau", es:"Cada mujer (femenino)"}
+  ]},
+ {title:"manche vs einige: dos formas de decir \'algunos\'", category:"Pronombres y casos",
+  note:"Ambas son válidas y muy similares; \'manche\' suena un poco más selectivo/literario, \'einige\' es más neutro y de uso diario.",
+  examples:[
+    {de:"Manche Leute mögen das nicht.", es:"Algunas personas no les gusta eso."},
+    {de:"Einige Leute waren da.", es:"Algunas personas estaban ahí."}
+  ]},
+ {title:"Nominalización: convertir un verbo en sustantivo con \'das\'", category:"Artículos y género",
+  note:"Cualquier infinitivo puede usarse como sustantivo neutro con solo escribirlo en mayúscula y anteponer \'das\' — muy común en alemán escrito.",
+  examples:[
+    {de:"das Lesen", es:"la lectura (literalmente \'el leer\')"},
+    {de:"Schwimmen macht Spaß.", es:"Nadar es divertido."}
+  ]},
+ {title:"El plural con Umlaut es impredecible — hay que memorizarlo", category:"Artículos y género",
+  note:"Muchos sustantivos cambian la vocal interna en plural (a→ä, o→ö, u→ü) sin una regla fija que lo explique — toca aprender cada caso.",
+  examples:[
+    {de:"der Apfel → die Äpfel", es:"la manzana → las manzanas"},
+    {de:"die Mutter → die Mütter", es:"la madre → las madres"}
+  ]},
+ {title:"selbst / selber: para enfatizar \'yo mismo\'", category:"Pronombres y casos",
+  note:"Ambas palabras significan lo mismo y son intercambiables — se usan después del pronombre para dar énfasis, como el español \'yo mismo\'.",
+  examples:[
+    {de:"Ich mache das selbst.", es:"Yo mismo hago eso."},
+    {de:"Hast du das selber gebacken?", es:"¿Lo horneaste tú mismo?"}
+  ]},
+ {title:"gegenseitig: \'mutuamente\', para acciones compartidas", category:"Partículas y matices",
+  note:"Se usa para aclarar que una acción va en ambas direcciones entre dos o más personas.",
+  examples:[
+    {de:"Wir helfen uns gegenseitig.", es:"Nos ayudamos mutuamente."},
+    {de:"Sie respektieren sich gegenseitig.", es:"Se respetan mutuamente."}
+  ]},
+ {title:"einander: otra forma de decir \'el uno al otro\'", category:"Pronombres y casos",
+  note:"Alternativa más formal a \'sich gegenseitig\', usada sobre todo en alemán escrito.",
+  examples:[
+    {de:"Sie lieben einander.", es:"Se aman el uno al otro."},
+    {de:"Wir kennen einander gut.", es:"Nos conocemos bien mutuamente."}
+  ]},
+ {title:"Prefijos que nunca se separan del verbo", category:"Verbos",
+  note:"A diferencia de los separables como \'an-\' o \'auf-\', prefijos como \'ver-\', \'be-\', \'ent-\' y \'er-\' siempre quedan pegados al verbo, en cualquier tiempo.",
+  examples:[
+    {de:"Ich verstehe das.", es:"Entiendo eso. (ver- nunca se separa)"},
+    {de:"Ich habe das verstanden.", es:"He entendido eso. (tampoco en el Perfekt)"}
+  ]},
+ {title:"Los adjetivos también piden preposiciones fijas", category:"Pronombres y casos",
+  note:"Igual que los verbos, muchos adjetivos exigen una preposición específica que hay que memorizar junto con ellos: \'stolz auf\', \'zufrieden mit\'.",
+  examples:[
+    {de:"Ich bin stolz auf dich.", es:"Estoy orgulloso de ti."},
+    {de:"Ich bin zufrieden mit der Arbeit.", es:"Estoy satisfecho con el trabajo."}
+  ]},
+ {title:"zwar...aber: \'si bien... pero\' para matizar una idea", category:"Orden de palabras",
+  note:"Estructura para reconocer algo y después contrastarlo, muy natural en el habla más cuidada.",
+  examples:[
+    {de:"Das ist zwar teuer, aber gut.", es:"Eso es caro, sí, pero bueno."},
+    {de:"Ich bin zwar müde, aber glücklich.", es:"Estoy cansado, sí, pero feliz."}
+  ]},
+ {title:"es sei denn: \'a menos que\'", category:"Orden de palabras",
+  note:"Introduce una excepción a lo dicho antes — estructura fija poco intuitiva para hispanohablantes pero muy usada.",
+  examples:[
+    {de:"Ich komme, es sei denn, es regnet.", es:"Vengo, a menos que llueva."},
+    {de:"Wir gehen raus, es sei denn, du bist müde.", es:"Salimos, a menos que estés cansado."}
+  ]},
+ {title:"als ob + Konjunktiv: \'como si\'", category:"Verbos",
+  note:"Para comparaciones hipotéticas, se usa \'als ob\' seguido del Konjunktiv II (forma similar al condicional).",
+  examples:[
+    {de:"Er tut, als ob er schläft.", es:"Hace como si estuviera dormido."},
+    {de:"Sie redet, als ob sie alles wüsste.", es:"Habla como si lo supiera todo."}
+  ]},
+ {title:"\'doch mal\' combinados para insistir con suavidad", category:"Partículas y matices",
+  note:"Juntar estas dos partículas hace que una sugerencia suene más amable e insistente a la vez, muy natural en el habla diaria.",
+  examples:[
+    {de:"Komm doch mal vorbei!", es:"¡Ven a visitarme, anda!"},
+    {de:"Frag doch mal nach.", es:"Pregunta, total no pierdes nada."}
+  ]},
+ {title:"\'ruhig\' como partícula: dar permiso con confianza", category:"Partículas y matices",
+  note:"Además de significar \'tranquilo\', como partícula suelta transmite que algo se puede hacer sin preocupación.",
+  examples:[
+    {de:"Du kannst ruhig fragen.", es:"Puedes preguntar tranquilamente, sin pena."},
+    {de:"Iss ruhig mehr.", es:"Come más, no hay problema."}
+  ]},
+ {title:"eben vs halt: una diferencia más regional que de significado", category:"Partículas y matices",
+  note:"Significan básicamente lo mismo (\'pues/ni modo\'), pero \'halt\' es más típico del sur de Alemania y \'eben\' se usa en todo el país por igual.",
+  examples:[
+    {de:"Das ist halt so.", es:"Así es la cosa, ni modo. (más usado en el sur)"},
+    {de:"Das ist eben so.", es:"Así es la cosa. (neutro, en todo el país)"}
+  ]},
+ {title:"Los números ordinales llevan terminación como los adjetivos", category:"Artículos y género",
+  note:"\'erste\', \'zweite\', \'dritte\'... se declinan igual que cualquier adjetivo según el género y caso del sustantivo que acompañan.",
+  examples:[
+    {de:"der erste Tag", es:"el primer día"},
+    {de:"die zweite Woche", es:"la segunda semana"}
+  ]},
+ {title:"Decir la hora de forma informal vs formal", category:"General",
+  note:"En el habla cotidiana se usa \'viertel vor/nach\' (cuarto para/pasado) con el reloj de 12 horas; en contextos formales (trenes, TV) se usa el formato de 24 horas.",
+  examples:[
+    {de:"Viertel vor acht.", es:"Cuarto para las ocho. (informal)"},
+    {de:"19:45 Uhr.", es:"19:45 horas. (formal, horarios)"}
+  ]},
+ {title:"kennenlernen vs treffen: \'conocer\' por primera vez vs \'encontrarse\'", category:"Verbos",
+  note:"\'kennenlernen\' es conocer a alguien por primera vez; \'treffen\' es encontrarse con alguien que ya conoces — no son intercambiables.",
+  examples:[
+    {de:"Ich habe sie gestern kennengelernt.", es:"La conocí ayer. (primera vez)"},
+    {de:"Ich treffe sie heute.", es:"Me encuentro con ella hoy. (ya la conocía)"}
+  ]},
+ {title:"kriegen vs bekommen: \'recibir\', uno más coloquial", category:"Verbos",
+  note:"Significan exactamente lo mismo; \'kriegen\' es más informal y hablado, \'bekommen\' es el estándar neutro, válido en cualquier contexto.",
+  examples:[
+    {de:"Ich kriege ein Geschenk.", es:"Me dan un regalo. (coloquial)"},
+    {de:"Ich bekomme ein Geschenk.", es:"Recibo un regalo. (neutro)"}
+  ]},
+ {title:"kommen vs ankommen: \'venir\' no siempre es \'llegar\'", category:"Verbos",
+  note:"\'kommen\' es el verbo general de venir; \'ankommen\' enfatiza específicamente el momento de llegada a un destino.",
+  examples:[
+    {de:"Ich komme morgen.", es:"Vengo mañana. (general)"},
+    {de:"Der Zug kommt um 9 Uhr an.", es:"El tren llega a las 9. (llegada puntual)"}
+  ]},
+ {title:"\'kennen\' siempre lleva acusativo directo, sin preposición", category:"Pronombres y casos",
+  note:"A diferencia de \'conocer a alguien\' en español (con \'a\'), en alemán \'kennen\' no necesita ninguna preposición antes del objeto.",
+  examples:[
+    {de:"Ich kenne ihn.", es:"Lo conozco. (sin preposición)"},
+    {de:"Kennst du diese Stadt?", es:"¿Conoces esta ciudad?"}
+  ]},
+ {title:"gar nicht: para negar con más fuerza que un simple \'nicht\'", category:"Negación y comparación",
+  note:"Añadir \'gar\' antes de \'nicht\' intensifica la negación, equivalente a \'para nada\' en español.",
+  examples:[
+    {de:"Das gefällt mir gar nicht.", es:"Eso no me gusta para nada."},
+    {de:"Ich habe gar keine Zeit.", es:"No tengo tiempo para nada."}
+  ]},
+ {title:"La declinación del adjetivo cambia según lo que venga antes", category:"Artículos y género",
+  note:"Un mismo adjetivo lleva una terminación distinta si va después de \'der/die/das\', después de \'ein/eine\' o sin ningún artículo — son tres patrones distintos que vale la pena memorizar por separado.",
+  examples:[
+    {de:"der gute Kaffee", es:"el buen café (con artículo definido)"},
+    {de:"ein guter Kaffee", es:"un buen café (con artículo indefinido, cambia la terminación)"}
+  ]},
+ {title:"ß vs ss: la regla depende de la vocal anterior", category:"General",
+  note:"Se escribe \'ß\' después de vocal larga o diptongo; se escribe \'ss\' después de vocal corta — una regla simple que resuelve la mayoría de los casos.",
+  examples:[
+    {de:"die Straße", es:"la calle (vocal larga → ß)"},
+    {de:"dass", es:"que/conjunción (vocal corta → ss)"}
+  ]},
+ {title:"En oraciones subordinadas, el verbo se va al final", category:"Orden de palabras",
+  note:"Con conectores como \'dass\', \'weil\' o \'wenn\', el verbo conjugado siempre se mueve al final de esa parte de la frase — una de las reglas más importantes del alemán.",
+  examples:[
+    {de:"Ich weiß, dass er kommt.", es:"Sé que él viene. (verbo \'kommt\' al final)"},
+    {de:"Ich bleibe, weil es regnet.", es:"Me quedo porque llueve. (verbo \'regnet\' al final)"}
+  ]},
+ {title:"\'denn\' dentro de una pregunta suaviza la curiosidad", category:"Partículas y matices",
+  note:"No confundir con \'denn\' = \'porque\' — aquí es una partícula modal que hace que una pregunta suene más interesada y menos brusca.",
+  examples:[
+    {de:"Was machst du denn?", es:"¿Qué estás haciendo? (con interés genuino)"},
+    {de:"Wo warst du denn?", es:"¿Dónde estabas? (con curiosidad, no reproche)"}
+  ]},
+ {title:"El superlativo con \'am\' para adverbios y adjetivos predicativos", category:"Negación y comparación",
+  note:"Cuando el superlativo no va antes de un sustantivo, se usa la forma \'am + adjetivo+sten\', como \'am besten\' (lo mejor) o \'am liebsten\' (lo que más te gusta).",
+  examples:[
+    {de:"Das schmeckt am besten.", es:"Eso sabe mejor que todo lo demás."},
+    {de:"Ich mag das am liebsten.", es:"Eso es lo que más me gusta."}
+  ]},
+ {title:"\'zu\' antes de un adjetivo significa \'demasiado\'", category:"Negación y comparación",
+  note:"Un matiz fácil de confundir con \'muy\' (\'sehr\') — \'zu\' siempre implica que algo es excesivo, no simplemente intenso.",
+  examples:[
+    {de:"Das ist zu teuer.", es:"Eso es demasiado caro. (excesivo)"},
+    {de:"Das ist sehr teuer.", es:"Eso es muy caro. (solo intenso)"}
+  ]},
+ {title:"\'nicht wahr?\' y \'oder?\' — otras formas de pedir confirmación", category:"Tono y cortesía",
+  note:"Además de \'ne\' o \'gell\', estas coletillas también sirven para confirmar algo — \'nicht wahr\' es un poco más formal, \'oder\' más casual.",
+  examples:[
+    {de:"Das ist schön, nicht wahr?", es:"Está bonito, ¿no es verdad?"},
+    {de:"Du kommst doch, oder?", es:"Sí vienes, ¿verdad?"}
+  ]},
+ {title:"\'das heißt\' para aclarar o corregirte a ti mismo", category:"Partículas y matices",
+  note:"Muy usado para precisar algo que acabas de decir, equivalente a \'es decir\' o \'o sea\' en español.",
+  examples:[
+    {de:"Ich komme morgen, das heißt, am Montag.", es:"Vengo mañana, es decir, el lunes."},
+    {de:"Das heißt, du bist einverstanden?", es:"O sea, ¿estás de acuerdo?"}
+  ]},
+ {title:"La forma cortés también existe en Perfekt", category:"Tono y cortesía",
+  note:"Para preguntar algo formal sobre el pasado, el \'Sie\' se combina con el Perfekt normal, sin cambios especiales — solo hay que recordar usar el verbo conjugado correcto.",
+  examples:[
+    {de:"Hätten Sie das gewusst?", es:"¿Lo hubiera sabido usted? (muy formal/hipotético)"},
+    {de:"Haben Sie das schon gesehen?", es:"¿Ya ha visto usted eso? (formal, Perfekt normal)"}
+  ]},
+
+ {title:"Falso amigo: \'bekommen\' no es \'convertirse\', es \'recibir\'", category:"General",
+  note:"Uno de los falsos amigos más comunes para hispanohablantes e incluso angloparlantes — \'bekommen\' nunca significa \'become/convertirse\', sino \'recibir/conseguir\'.",
+  examples:[
+    {de:"Ich bekomme ein Paket.", es:"Recibo un paquete."},
+    {de:"Ich werde müde.", es:"Me vuelvo cansado. (para \'convertirse en\' se usa \'werden\')"}
+  ]},
+ {title:"Falso amigo: \'also\' no es \'también\', es \'entonces / o sea\'", category:"General",
+  note:"Se parece mucho a \'also\' en inglés, pero en alemán funciona como conector de conclusión, no como \'también\' (eso es \'auch\').",
+  examples:[
+    {de:"Also, was machen wir jetzt?", es:"Entonces, ¿qué hacemos ahora?"},
+    {de:"Ich komme auch mit.", es:"Yo también voy. (aquí sí es \'también\', con \'auch\')"}
+  ]},
+ {title:"\'Gift\' significa \'veneno\', no \'regalo\'", category:"General",
+  note:"Un falso amigo clásico con el inglés — en alemán \'das Gift\' es veneno; \'regalo\' se dice \'das Geschenk\'.",
+  examples:[
+    {de:"Das ist Gift für Hunde.", es:"Eso es veneno para perros."},
+    {de:"Danke für das Geschenk!", es:"¡Gracias por el regalo!"}
+  ]},
+ {title:"Los números compuestos se escriben \'al revés\'", category:"General",
+  note:"A diferencia del español, en alemán las unidades van antes que las decenas dentro de la misma palabra: \'einundzwanzig\' es literalmente \'uno y veinte\'.",
+  examples:[
+    {de:"einundzwanzig", es:"veintiuno (uno-y-veinte)"},
+    {de:"vierundfünfzig", es:"cincuenta y cuatro (cuatro-y-cincuenta)"}
+  ]},
+ {title:"\'ch\' tiene dos sonidos distintos según la vocal anterior", category:"General",
+  note:"Después de a, o, u suena más gutural (como una jota suave); después de e, i, ä, ö, ü o consonante suena más suave, casi como una \'sh\' tenue.",
+  examples:[
+    {de:"Buch", es:"libro (ch gutural, tras \'u\')"},
+    {de:"ich", es:"yo (ch suave, tras \'i\')"}
+  ]},
+ {title:"La \'r\' al final de sílaba casi no se pronuncia", category:"General",
+  note:"En muchas variantes del alemán estándar, la \'r\' al final de sílaba o palabra se vocaliza, sonando casi como una \'a\' corta en vez de una r fuerte.",
+  examples:[
+    {de:"Vater", es:"padre (la \'r\' final apenas se oye)"},
+    {de:"wir", es:"nosotros (ídem)"}
+  ]},
+ {title:"La \'v\' se pronuncia como \'f\' en la mayoría de palabras alemanas", category:"General",
+  note:"A diferencia del español o inglés, la \'v\' alemana nativa suena como nuestra \'f\' — solo en préstamos de otros idiomas suena como \'v\'.",
+  examples:[
+    {de:"Vater", es:"padre (se pronuncia \'Fater\')"},
+    {de:"Vase", es:"florero (préstamo del francés, aquí sí suena \'v\')"}
+  ]},
+ {title:"La \'w\' se pronuncia como la \'v\' del español", category:"General",
+  note:"Justo al revés de lo que se esperaría — la letra \'w\' alemana suena como nuestra \'v\', no como una \'w\' inglesa.",
+  examples:[
+    {de:"Wasser", es:"agua (se pronuncia \'Vasser\')"},
+    {de:"wichtig", es:"importante (se pronuncia \'vichtig\')"}
+  ]},
+ {title:"Todos los sustantivos se escriben con mayúscula inicial", category:"General",
+  note:"No solo los nombres propios — cualquier sustantivo común en alemán lleva mayúscula siempre, en cualquier parte de la frase.",
+  examples:[
+    {de:"der Tisch", es:"la mesa (siempre con mayúscula)"},
+    {de:"Ich lese ein Buch.", es:"Leo un libro. (\'Buch\' con mayúscula aunque no sea nombre propio)"}
+  ]},
+ {title:"\'aktuell\' significa \'actual/vigente\', no \'actualmente\'", category:"General",
+  note:"Otro falso amigo con el inglés \'actually\' — \'aktuell\' es un adjetivo que describe algo vigente ahora, no un adverbio de tiempo.",
+  examples:[
+    {de:"Das ist die aktuelle Version.", es:"Esa es la versión actual."},
+    {de:"Im Moment arbeite ich viel.", es:"Actualmente trabajo mucho. (para \'actualmente\' usa \'im Moment\' o \'zurzeit\')"}
+  ]},
+ {title:"En los números, el punto y la coma se invierten respecto al español", category:"General",
+  note:"Donde el español usa coma para decimales, el alemán usa punto para miles — justo al revés de lo que estamos acostumbrados.",
+  examples:[
+    {de:"1.000,50 €", es:"mil con cincuenta centavos (punto = miles, coma = decimales)"},
+    {de:"3,5 Kilometer", es:"3.5 kilómetros (la coma marca el decimal)"}
+  ]},
+ {title:"La edad se expresa con \'sein\' (ser), no con \'tener\' como en español", category:"General",
+  note:"Literalmente dices \'soy X años viejo\' en vez de \'tengo X años\' — un calco directo del español suena incorrecto aquí.",
+  examples:[
+    {de:"Ich bin 25 Jahre alt.", es:"Tengo 25 años. (literalmente \'soy 25 años viejo\')"},
+    {de:"Wie alt bist du?", es:"¿Cuántos años tienes? (literalmente \'¿qué tan viejo eres?\')"}
+  ]},
+ {title:"\'das Gymnasium\' no es un gimnasio, es un tipo de colegio", category:"General",
+  note:"Falso amigo importante en el sistema educativo alemán — el \'Gymnasium\' es la escuela secundaria académica; \'gimnasio\' (de hacer ejercicio) se dice \'das Fitnessstudio\'.",
+  examples:[
+    {de:"Er geht aufs Gymnasium.", es:"Él va al colegio (secundaria académica)."},
+    {de:"Ich gehe ins Fitnessstudio.", es:"Voy al gimnasio (a hacer ejercicio)."}
+  ]},
+ {title:"Las direcciones se escriben con el número después de la calle", category:"General",
+  note:"El orden es justo al revés que en español: primero el nombre de la calle, después el número.",
+  examples:[
+    {de:"Hauptstraße 12", es:"Calle Principal 12 (calle primero, número después)"},
+    {de:"Ich wohne in der Bahnhofstraße 5.", es:"Vivo en la calle Bahnhofstraße 5."}
+  ]},
+ {title:"\'eine Milliarde\' no es lo mismo que \'a billion\' en inglés", category:"General",
+  note:"Cuidado al traducir cifras grandes — el alemán \'eine Billion\' es un billón europeo (un millón de millones), mientras que el inglés \'billion\' equivale a \'eine Milliarde\' en alemán.",
+  examples:[
+    {de:"eine Milliarde Euro", es:"mil millones de euros (= \'a billion\' en inglés)"},
+    {de:"eine Billion Euro", es:"un billón de euros (muchísimo más que \'a billion\')"}
+  ]},
+ {title:"Los años se dicen como números compuestos, sin decir \'mil\'", category:"General",
+  note:"Para años desde 1100 hasta 1999, el alemán los agrupa en centenas en vez de decir \'mil novecientos\', como si fueran dos números de dos cifras juntos.",
+  examples:[
+    {de:"neunzehnhundertneunzig", es:"1990 (literalmente \'diecinueve-cientos-noventa\')"},
+    {de:"zweitausendfünfundzwanzig", es:"2025 (a partir del 2000 sí se dice \'dos mil...\')"}
+  ]},
+ {title:"\'weder... noch\': \'ni... ni\'", category:"Negación y comparación",
+  note:"Para negar dos cosas a la vez, el alemán usa esta estructura fija en vez de repetir \'nicht\' dos veces.",
+  examples:[
+    {de:"Ich mag weder Kaffee noch Tee.", es:"No me gusta ni el café ni el té."},
+    {de:"Er war weder müde noch hungrig.", es:"Él no estaba ni cansado ni con hambre."}
+  ]},
+ {title:"Después de \'nichts\' o \'etwas\', el adjetivo lleva mayúscula y terminación -es", category:"Negación y comparación",
+  note:"Una regla curiosa: cuando un adjetivo describe a \'nichts\' (nada) o \'etwas\' (algo), se escribe como sustantivo, con mayúscula y la terminación \'-es\'.",
+  examples:[
+    {de:"Ich habe nichts Neues gehört.", es:"No he oído nada nuevo."},
+    {de:"Hast du etwas Interessantes gelesen?", es:"¿Has leído algo interesante?"}
+  ]},
+ {title:"\'kaum\': \'apenas / casi no\'", category:"Negación y comparación",
+  note:"Expresa una negación suave, de algo que casi no sucede o casi no existe, sin ser una negación total.",
+  examples:[
+    {de:"Ich habe kaum Zeit.", es:"Casi no tengo tiempo."},
+    {de:"Er spricht kaum Deutsch.", es:"Él apenas habla alemán."}
+  ]},
+ {title:"\'immer weniger\': \'cada vez menos\'", category:"Negación y comparación",
+  note:"El opuesto exacto de \'immer mehr\' (cada vez más) — misma estructura con \'weniger\' en vez de \'mehr\'.",
+  examples:[
+    {de:"Ich habe immer weniger Zeit.", es:"Tengo cada vez menos tiempo."},
+    {de:"Es gibt immer weniger Insekten.", es:"Hay cada vez menos insectos."}
+  ]},
+ {title:"\'weniger... als\': \'menos... que\'", category:"Negación y comparación",
+  note:"Estructura comparativa de inferioridad, el equivalente directo a \'menos... que\' del español.",
+  examples:[
+    {de:"Ich habe weniger Geld als du.", es:"Tengo menos dinero que tú."},
+    {de:"Das ist weniger wichtig als die Gesundheit.", es:"Eso es menos importante que la salud."}
+  ]},
+ {title:"\'genauso wenig wie\': \'tan poco como\'", category:"Negación y comparación",
+  note:"Para comparar dos cosas que igualmente carecen de algo, construcción paralela a \'genauso... wie\' pero en negativo.",
+  examples:[
+    {de:"Ich weiß genauso wenig wie du.", es:"Sé tan poco como tú."},
+    {de:"Das hilft genauso wenig wie nichts zu tun.", es:"Eso ayuda tan poco como no hacer nada."}
+  ]},
+ {title:"\'nie wieder\': \'nunca más\'", category:"Negación y comparación",
+  note:"Combinación muy usada para expresar que algo no volverá a pasar jamás, con bastante énfasis emocional.",
+  examples:[
+    {de:"Das mache ich nie wieder!", es:"¡Eso no lo vuelvo a hacer nunca más!"},
+    {de:"Ich will dich nie wieder sehen.", es:"No quiero volver a verte nunca más."}
+  ]},
+ {title:"\'überhaupt nicht\': \'en absoluto\'", category:"Negación y comparación",
+  note:"Refuerza una negación con más fuerza que un simple \'nicht\', parecido a \'gar nicht\' pero igual de común.",
+  examples:[
+    {de:"Das stört mich überhaupt nicht.", es:"Eso no me molesta en absoluto."},
+    {de:"Ich verstehe das überhaupt nicht.", es:"No entiendo eso en absoluto."}
+  ]},
+ {title:"\'doppelt so... wie\': \'el doble de... que\'", category:"Negación y comparación",
+  note:"Estructura fija para comparar proporciones del doble (o se puede cambiar \'doppelt\' por otro múltiplo).",
+  examples:[
+    {de:"Er ist doppelt so alt wie ich.", es:"Él tiene el doble de edad que yo."},
+    {de:"Die Miete ist doppelt so teuer wie letztes Jahr.", es:"El alquiler es el doble de caro que el año pasado."}
+  ]},
+ {title:"Las terminaciones -ung, -heit, -keit y -schaft casi siempre son femeninas", category:"Artículos y género",
+  note:"Reconocer estas terminaciones te ahorra tener que memorizar el género de muchísimos sustantivos abstractos.",
+  examples:[
+    {de:"die Wohnung", es:"el apartamento (-ung → die)"},
+    {de:"die Freundschaft", es:"la amistad (-schaft → die)"}
+  ]},
+ {title:"Las terminaciones -ment y -um casi siempre son neutras", category:"Artículos y género",
+  note:"Otro patrón útil: sustantivos (muchos de origen latino) que terminan así casi siempre llevan \'das\'.",
+  examples:[
+    {de:"das Museum", es:"el museo"},
+    {de:"das Dokument", es:"el documento"}
+  ]},
+ {title:"-er marca profesión masculina, -erin la versión femenina", category:"Artículos y género",
+  note:"Patrón muy regular y productivo: casi cualquier profesión masculina terminada en \'-er\' forma su femenino agregando \'-in\'.",
+  examples:[
+    {de:"der Lehrer → die Lehrerin", es:"el profesor → la profesora"},
+    {de:"der Fahrer → die Fahrerin", es:"el conductor → la conductora"}
+  ]},
+ {title:"Días, meses y estaciones del año son siempre masculinos", category:"Artículos y género",
+  note:"Una regla sin excepciones que ahorra mucha memorización: \'der Montag\', \'der Mai\', \'der Sommer\' — todos con \'der\'.",
+  examples:[
+    {de:"der Dienstag", es:"el martes"},
+    {de:"der Winter", es:"el invierno"}
+  ]},
+ {title:"Los idiomas son neutros y no llevan artículo en uso general", category:"Artículos y género",
+  note:"Cuando hablas del idioma en sí (no de \'el idioma alemán\' como concepto), normalmente se omite el artículo por completo.",
+  examples:[
+    {de:"Ich spreche Deutsch.", es:"Hablo alemán. (sin artículo)"},
+    {de:"Das Deutsch von Goethe ist schwierig.", es:"El alemán de Goethe es difícil. (con artículo, como concepto específico)"}
+  ]},
+ {title:"La mayoría de los países son neutros y sin artículo", category:"Artículos y género",
+  note:"A diferencia de ciudades/países femeninos o masculinos con excepción (die Schweiz, der Iran, die Türkei), la mayoría de países no llevan artículo en absoluto.",
+  examples:[
+    {de:"Ich komme aus Deutschland.", es:"Vengo de Alemania. (sin artículo)"},
+    {de:"Ich fahre in die Schweiz.", es:"Voy a Suiza. (excepción: lleva artículo femenino)"}
+  ]},
+ {title:"Las terminaciones -ität y -tion son femeninas, suelen ser cognados del español", category:"Artículos y género",
+  note:"Muy útil para hispanohablantes: estas terminaciones casi siempre son femeninas y además se parecen mucho a palabras equivalentes en español (-dad, -ción).",
+  examples:[
+    {de:"die Universität", es:"la universidad"},
+    {de:"die Information", es:"la información"}
+  ]},
+ {title:"La terminación -nis puede ser neutra o femenina — toca aprenderla aparte", category:"Artículos y género",
+  note:"A diferencia de otras terminaciones más predecibles, \'-nis\' no sigue un patrón fijo de género, así que cada palabra hay que memorizarla individualmente.",
+  examples:[
+    {de:"das Ergebnis", es:"el resultado (neutro)"},
+    {de:"die Kenntnis", es:"el conocimiento (femenino)"}
+  ]},
+ {title:"El artículo indefinido \'ein\' no tiene plural", category:"Artículos y género",
+  note:"A diferencia de \'der/die/das\' que sí tienen forma plural (\'die\'), \'ein/eine\' simplemente desaparece en plural o se reemplaza por \'einige\' o \'ein paar\'.",
+  examples:[
+    {de:"ein Hund → Hunde", es:"un perro → perros (sin artículo en plural)"},
+    {de:"ein paar Hunde", es:"algunos perros"}
+  ]},
+ {title:"\'Entschuldigen Sie\' vs \'Entschuldigung\'", category:"Tono y cortesía",
+  note:"Ambas significan \'disculpe\', pero \'Entschuldigen Sie\' es la forma verbal completa y más formal; \'Entschuldigung\' sola es más neutra y universal.",
+  examples:[
+    {de:"Entschuldigen Sie die Verspätung.", es:"Disculpe usted el retraso. (más formal)"},
+    {de:"Entschuldigung, wo ist der Bahnhof?", es:"Disculpe, ¿dónde está la estación? (neutro, muy usado)"}
+  ]},
+ {title:"\'Würden Sie mir helfen?\' — una petición muy formal", category:"Tono y cortesía",
+  note:"Combinar el condicional \'würden\' con \'Sie\' es de las formas más corteses posibles de pedir ayuda, típica en contextos muy formales.",
+  examples:[
+    {de:"Würden Sie mir bitte helfen?", es:"¿Sería usted tan amable de ayudarme?"},
+    {de:"Würden Sie das wiederholen?", es:"¿Podría repetir eso, por favor?"}
+  ]},
+ {title:"\'Meine Damen und Herren\' para dirigirte a un grupo formalmente", category:"Tono y cortesía",
+  note:"Fórmula clásica para abrir un discurso o anuncio formal, equivalente a \'damas y caballeros\'.",
+  examples:[
+    {de:"Meine Damen und Herren, willkommen!", es:"¡Damas y caballeros, bienvenidos!"},
+    {de:"Sehr geehrte Damen und Herren,", es:"Estimados señores y señoras, (inicio de carta formal)"}
+  ]},
+ {title:"\'Herr/Frau + apellido\' para el trato formal", category:"Tono y cortesía",
+  note:"Para dirigirte formalmente a alguien por su nombre, siempre se usa el apellido, nunca el nombre de pila, junto con \'Herr\' o \'Frau\'.",
+  examples:[
+    {de:"Guten Tag, Herr Schmidt.", es:"Buenos días, señor Schmidt."},
+    {de:"Frau Müller, haben Sie eine Minute?", es:"Señora Müller, ¿tiene un minuto?"}
+  ]},
+ {title:"Evita el \'du\' con desconocidos mayores, aunque parezcan amigables", category:"Tono y cortesía",
+  note:"En Alemania el tuteo depende más de la formalidad del contexto que de lo simpática que parezca la persona — por defecto usa \'Sie\' hasta que te inviten a tutear.",
+  examples:[
+    {de:"Entschuldigung, können Sie mir helfen?", es:"Disculpe, ¿puede ayudarme? (con un desconocido)"},
+    {de:"Wir können uns gerne duzen.", es:"Nos podemos tutear si quieres. (invitación explícita a pasar a \'du\')"}
+  ]},
+ {title:"\'Wie war\'s?\' — pregunta casual tras un evento", category:"Tono y cortesía",
+  note:"Forma corta y muy natural de preguntar cómo estuvo algo (una fiesta, un viaje, una entrevista), sin repetir todo el sustantivo.",
+  examples:[
+    {de:"Wie war\'s im Urlaub?", es:"¿Cómo estuvieron las vacaciones?"},
+    {de:"Wie war die Prüfung?", es:"¿Cómo estuvo el examen?"}
+  ]},
+ {title:"\'Alles Gute!\' como despedida o buen deseo genérico", category:"Tono y cortesía",
+  note:"Frase comodín para desear buena suerte o bienestar en casi cualquier situación, desde un cumpleaños hasta una despedida informal.",
+  examples:[
+    {de:"Alles Gute zum Geburtstag!", es:"¡Feliz cumpleaños! (literalmente \'todo lo bueno\')"},
+    {de:"Alles Gute für die Zukunft!", es:"¡Todo lo mejor para el futuro!"}
+  ]},
+ {title:"El imperativo formal agrega \'Sie\' después del verbo", category:"Tono y cortesía",
+  note:"A diferencia del imperativo informal (sin pronombre), la forma de usted sí necesita el \'Sie\' explícito justo después del verbo conjugado.",
+  examples:[
+    {de:"Kommen Sie bitte herein.", es:"Pase usted, por favor."},
+    {de:"Nehmen Sie Platz.", es:"Tome asiento."}
+  ]},
+ {title:"En preguntas con palabra interrogativa, esta va siempre primero", category:"Orden de palabras",
+  note:"Palabras como \'wer\', \'was\', \'wo\', \'wann\' siempre encabezan la pregunta, seguidas inmediatamente por el verbo conjugado.",
+  examples:[
+    {de:"Wann kommst du?", es:"¿Cuándo vienes?"},
+    {de:"Wo wohnst du?", es:"¿Dónde vives?"}
+  ]},
+ {title:"Un adverbio de tiempo al inicio empuja el verbo a segunda posición", category:"Orden de palabras",
+  note:"El alemán es un idioma \'verbo en segunda posición\' — si empiezas la frase con algo distinto al sujeto, el verbo se mantiene en el segundo lugar y el sujeto se mueve después.",
+  examples:[
+    {de:"Heute gehe ich einkaufen.", es:"Hoy voy de compras. (heute = 1°, gehe = 2°, ich = 3°)"},
+    {de:"Morgen regnet es.", es:"Mañana llueve. (morgen = 1°, regnet = 2°, es = 3°)"}
+  ]},
+ {title:"La posición de \'nicht\' cambia qué se está negando", category:"Orden de palabras",
+  note:"\'nicht\' suele ir cerca de lo que niega específicamente, no siempre al final — su posición exacta puede cambiar el matiz de la frase.",
+  examples:[
+    {de:"Ich komme nicht heute.", es:"No vengo hoy. (pero quizás otro día)"},
+    {de:"Ich komme heute nicht.", es:"Hoy no vengo. (énfasis general de la negación completa)"}
+  ]},
+ {title:"Con un verbo modal, el infinitivo se va al final de la frase", category:"Orden de palabras",
+  note:"Cuando usas un verbo modal (können, müssen, wollen...) junto a otro verbo, el segundo va siempre en infinitivo y al final de la oración.",
+  examples:[
+    {de:"Ich kann heute nicht kommen.", es:"No puedo venir hoy. (kommen al final)"},
+    {de:"Wir müssen das morgen machen.", es:"Tenemos que hacer eso mañana. (machen al final)"}
+  ]},
+ {title:"\'naja\' — muletilla de duda o reflexión", category:"Partículas y matices",
+  note:"Interjección muy común para dar una respuesta tibia o pensativa, parecida a \'bueno... pues\' en español.",
+  examples:[
+    {de:"Naja, das weiß ich nicht genau.", es:"Bueno, eso no lo sé con exactitud."},
+    {de:"Naja, vielleicht hast du recht.", es:"Pues, tal vez tengas razón."}
+  ]},
+ {title:"\'werden\' también significa \'volverse/ponerse\' (cambio de estado)", category:"Verbos",
+  note:"Además de ser el auxiliar del futuro y la pasiva, \'werden\' solo describe que algo cambia de estado — mucho más usado que en español para esto.",
+  examples:[
+    {de:"Ich werde müde.", es:"Me estoy poniendo cansado."},
+    {de:"Es wird kalt.", es:"Se está poniendo frío."}
+  ]},
+ {title:"\'möchte\' no es lo mismo que el \'mögen\' normal", category:"Verbos",
+  note:"\'möchte\' es técnicamente el Konjunktiv II de \'mögen\', pero funciona casi como un verbo propio para decir \'querría\' — mucho más cortés que \'will\' (quiero).",
+  examples:[
+    {de:"Ich möchte einen Kaffee.", es:"Quisiera un café. (cortés)"},
+    {de:"Ich will einen Kaffee.", es:"Quiero un café. (más directo/brusco)"}
+  ]},
+ {title:"Cómo se dice el año completo en alemán", category:"General",
+  note:"Para años desde el 2000 en adelante sí se dice \'dos mil...\', a diferencia del estilo compuesto usado antes del año 2000.",
+  examples:[
+    {de:"zweitausendvierundzwanzig", es:"2024"},
+    {de:"neunzehnhundertfünfundachtzig", es:"1985 (estilo compuesto, antes del 2000)"}
+  ]},
+ {title:"\'man\' se declina igual que \'er\' en dativo y acusativo", category:"Pronombres y casos",
+  note:"Aunque \'man\' (se impersonal) no cambia en nominativo, si necesitas usarlo como objeto, toma las formas \'einen\' (acusativo) y \'einem\' (dativo).",
+  examples:[
+    {de:"Das macht einen müde.", es:"Eso te deja cansado a uno. (acusativo: einen)"},
+    {de:"Das hilft einem sehr.", es:"Eso te ayuda mucho a uno. (dativo: einem)"}
   ]},
 ];
 
@@ -7715,7 +8747,13 @@ document.querySelectorAll("#verbsSection .sort-pill").forEach(btn => {
 });
 
 /* ============ Sección de Coloquial: Nativo ============ */
-let coloqState = { query: "", selected: null };
+let coloqState = { query: "", selected: null, sortBy: "default" };
+
+function sortColoq(list){
+  if(coloqState.sortBy === "es") return [...list].sort((a,b) => a.es.localeCompare(b.es, "es"));
+  if(coloqState.sortBy === "de") return [...list].sort((a,b) => a.de.localeCompare(b.de, "de"));
+  return list;
+}
 
 function coloqDetailHtml(c){
   const deEsc = c.de.replace(/'/g, "\\'");
@@ -7735,9 +8773,10 @@ function coloqDetailHtml(c){
 function renderColoqList(){
   const el = document.getElementById("coloqList");
   const q = normalize(coloqState.query.trim());
-  const list = q
+  const filtered = q
     ? COLOQUIAL_LIST.filter(c => normalize(c.es).includes(q) || normalize(c.de).includes(q))
     : COLOQUIAL_LIST;
+  const list = sortColoq(filtered);
 
   if(list.length === 0){
     el.innerHTML = `<div class="vd-empty" style="grid-column:1/-1;">Sin resultados</div>`;
@@ -7783,10 +8822,112 @@ document.getElementById("coloqSearchClear").addEventListener("click", () => {
   renderColoqList();
 });
 
+document.querySelectorAll("#nativoSection .sort-pill").forEach(btn => {
+  btn.addEventListener("click", () => {
+    coloqState.sortBy = btn.dataset.sort;
+    coloqState.selected = null;
+    document.querySelectorAll("#nativoSection .sort-pill").forEach(b => b.classList.toggle("active", b === btn));
+    renderColoqList();
+  });
+});
+
+/* ============ Sección de Coloquial: Frases del día a día ============ */
+let frasesState = { query: "", selected: null };
+
+function fraseDetailHtml(f){
+  const deEsc = f.de.replace(/'/g, "\\'");
+  return `
+    <div class="verb-detail">
+      <div class="vd-head">
+        <button class="vd-speak" data-text="${deEsc}" data-lang="de-DE">🔊</button>
+        <div class="vd-es">${f.context}</div>
+        <div class="vd-de" style="font-size:19px;">${f.de}</div>
+      </div>
+      <div class="vd-example" style="margin-top:14px;">${f.es}</div>
+    </div>
+  `;
+}
+
+function renderFrasesList(){
+  const el = document.getElementById("frasesList");
+  const q = normalize(frasesState.query.trim());
+  const list = q
+    ? PHRASES_LIST.filter(f => normalize(f.es).includes(q) || normalize(f.de).includes(q) || normalize(f.context).includes(q))
+    : PHRASES_LIST;
+
+  if(list.length === 0){
+    el.innerHTML = `<div class="vd-empty" style="grid-column:1/-1;">Sin resultados</div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(f => {
+    const chip = `
+      <button class="verb-chip ${frasesState.selected === f.de ? 'active' : ''}" data-de="${f.de.replace(/"/g,'&quot;')}">
+        <div class="vc-es">${f.de}</div>
+        <div class="vc-de">${f.es}</div>
+      </button>`;
+    return frasesState.selected === f.de ? chip + fraseDetailHtml(f) : chip;
+  }).join("");
+
+  el.querySelectorAll(".verb-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const de = chip.dataset.de;
+      frasesState.selected = (frasesState.selected === de) ? null : de;
+      renderFrasesList();
+    });
+  });
+
+  const speakBtn = el.querySelector(".vd-speak");
+  if(speakBtn){
+    speakBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      speak(e.currentTarget.dataset.text, e.currentTarget.dataset.lang);
+    });
+  }
+}
+
+document.getElementById("frasesSearchInput").addEventListener("input", (e) => {
+  frasesState.query = e.target.value;
+  document.getElementById("frasesSearchClear").classList.toggle("show", frasesState.query.trim() !== "");
+  renderFrasesList();
+});
+
+document.getElementById("frasesSearchClear").addEventListener("click", () => {
+  frasesState.query = "";
+  document.getElementById("frasesSearchInput").value = "";
+  document.getElementById("frasesSearchClear").classList.remove("show");
+  renderFrasesList();
+});
+
 /* ============ Sección de Coloquial: Tips gramaticales ============ */
+let tipsState = { query: "", category: "todos" };
+const TIP_CATEGORIES = ["todos", ...new Set(GRAMMAR_TIPS.map(t => t.category))];
+
+function renderTipsCats(){
+  const el = document.getElementById("tipsCats");
+  el.innerHTML = "";
+  TIP_CATEGORIES.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "cat-pill" + (c === tipsState.category ? " active" : "");
+    btn.textContent = c === "todos" ? "Todas" : c;
+    btn.onclick = () => { tipsState.category = c; renderTipsCats(); renderTips(); };
+    el.appendChild(btn);
+  });
+}
+
 function renderTips(){
   const el = document.getElementById("tipsList");
-  el.innerHTML = GRAMMAR_TIPS.map(t => `
+  const q = normalize(tipsState.query.trim());
+  let list = GRAMMAR_TIPS;
+  if(tipsState.category !== "todos") list = list.filter(t => t.category === tipsState.category);
+  if(q) list = list.filter(t => normalize(t.title).includes(q) || normalize(t.note).includes(q));
+
+  if(list.length === 0){
+    el.innerHTML = `<div class="vd-empty">Sin resultados</div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(t => `
     <div class="tip-card">
       <div class="tip-title">${t.title}</div>
       <div class="tip-note">${t.note}</div>
@@ -7808,6 +8949,19 @@ function renderTips(){
     btn.addEventListener("click", () => speak(btn.dataset.text, btn.dataset.lang));
   });
 }
+
+document.getElementById("tipsSearchInput").addEventListener("input", (e) => {
+  tipsState.query = e.target.value;
+  document.getElementById("tipsSearchClear").classList.toggle("show", tipsState.query.trim() !== "");
+  renderTips();
+});
+
+document.getElementById("tipsSearchClear").addEventListener("click", () => {
+  tipsState.query = "";
+  document.getElementById("tipsSearchInput").value = "";
+  document.getElementById("tipsSearchClear").classList.remove("show");
+  renderTips();
+});
 
 /* ============ Cambio de modo ============ */
 /* ============ Entrenador de género (der/die/das) ============ */
@@ -8873,6 +10027,7 @@ function updateSubText(){
       : "Elige el infinitivo correcto en alemán";
   }else{
     sub.textContent = state.coloqSub === "nativo" ? "Palabras y expresiones que usan los alemanes en el día a día"
+      : state.coloqSub === "frases" ? "Frases listas para usar en situaciones de todos los días"
       : "Datos para sonar más natural al hablar";
   }
 }
@@ -8928,6 +10083,7 @@ function setColoqSub(sub){
     btn.classList.toggle("active", btn.dataset.sub === sub);
   });
   document.getElementById("nativoSection").style.display = sub === "nativo" ? "" : "none";
+  document.getElementById("frasesSection").style.display = sub === "frases" ? "" : "none";
   document.getElementById("tipsSection").style.display = sub === "tips" ? "" : "none";
   updateSubText();
 }
@@ -9038,6 +10194,8 @@ function checkAchievements(){
   renderBoard();
   renderVerbList();
   renderColoqList();
+  renderFrasesList();
+  renderTipsCats();
   renderTips();
   checkAchievements();
 })();
